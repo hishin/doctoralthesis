@@ -1,0 +1,42 @@
+% Chapter 1
+
+\chapter{Introduction} % Chapter title
+
+\label{ch:introduction} % For referencing the chapter elsewhere, use \autoref{ch:introduction} 
+
+\begin{flushright}{\slshape    
+Multimedia is not more media, \\ 
+but the employment of various kinds of media (and hybrid media) \\ 
+for what they each offer to advance the narrative.} \\ \medskip
+--- \defcitealias{ritchin:2013}{Fred Ritchin}\citetalias{ritchin:2013} \citep{ritchin:2013}
+\end{flushright}
+
+%----------------------------------------------------------------------------------------
+\section{Overview}
+This dissertation is about designing effective interfaces to support the authoring and navigation of multimedia. We explore a range of applications -- navigating lecture videos, authoring voice recordings and delivering slide presentations. We originally considered these applications in separate publications, presented to different communities in computer graphics and human computer interaction. The goal of this text is to distill the common theme across these applications and present them in a unified way, along with insights gained over the course of our work.\\
+This chapter. Chapters. Finally. 
+
+\section{Challenges of Multimedia}
+The main subject of this dissertation is \textbf{multimedia}, content that combines multiple forms of media such as text, graphics, audio and video. In particular, we focus on \textbf{audiovisual media} that have both a sound and a visual component. For example, presentations that involve graphics and sound, audiobooks that combine text with audio, and websites that incorporate animations, sound and text are all different types of audiovisual media. \\
+As these everyday examples illustrate, audiovisual media has become commonplace. From the consumer's perspective, we encounter them in our normal activities, for instance, listening to a podcast, watching an advertisement or sitting in on a presentation. We also frequently produce audiovisuals to communicate our ideas, for example, by creating a blog or sharing a video on YouTube. In addition, new technologies and online platforms encourage new types of audiovisual media such as GoPro videos, 360-degree videos, interactive infographics or online lectures.\\ 
+Unfortunately, ease of access does not translate directly to efficiency or good quality. Simply navigating audiovisual media to search for information can be tedious. Consider the times you had to listen to a voicemail repeatedly to get the call back number, or when you had to play the video back and forth to find a specific moment. Producing compelling audiovisual media is even more time-consuming and difficult. People spend hours to produce a single slide of presentation or a few seconds of video.\\ 
+A major part of the difficulty lies in the nature of multimedia itself. For one, as its name implies, multimedia blend multiple modalities, each of which have different characteristic strengths and weaknesses. Let's consider some of the most basic components of multimedia.
+\begin{description}
+\item[Text:] As a static representation of language, text is one of the most common forms of communication that most people are familiar with. It is easy to author and edit digitally, and many algorithms exist to process text, for instance, for text summarization or comparison. Text is also easy to navigate by skimming or searching. It can be arranged spatially to emphasize structure and further facilitate navigation. In addition, different visual attributes such as typeface, font size or color can be used to convey extra information such as emphasis.\\
+On the other hand, some types of information is less suited for textual representation. For example, describing a complicated diagram or a piece of music would be difficult to achieve using text alone. There is also a limit to conveying tonal nuances or voice. \\
+\item[Audio:] Audio is a rich source of information that can convey not only speech but any other sound that may not have an accurate textual description, for example, the sound of a heartbeat or the sound of waves. It is an effective media for evoking emotion or reflecting mood.\\
+However, most audio lack appropriate visual representation, which makes it difficult to navigate or edit. Waveform is the most generic representation used in many applications, but it is ambiguous and hard to manipulate. For instance, detecting or separating the sound of one instrument from a music recording is a challenging research problem.\\
+% figure of audio waveform
+%Text and audio are also processed differently. 
+\item[Image:] A picture is worth a thousand words. Human perception is visually oriented, so images can be a powerful tool to communicate rich information intuitively in a small amount of space. Images are especially useful for conveying spatial relationships, structure, or detailed shape. Consider describing the layout of a building or the features of a face only using words versus showing a picture of the floor plan or the face.\\ 
+On the other hand, it can be difficult to convey information about movement or sequence using a still image. Oftentimes, text, labels or animation effects are attached to a still image to focus the viewers' attention to a specific part of the image or to clarify the intended message.\\
+\item[Animation/Video:] Animations are created from a set of static frames whereas videos record a continuous event which is broken up into a series of frames. Both media are especially useful for illustrating concepts that involve motion or sequence.\\
+As with audio, it takes time to navigate through the content of an animation or video and it can be difficult to skim or search.
+\end{description}
+
+In addition to having multiple modalities, audiovisual media is also intricately linked with time. Time imposes a linear structure to the media and is expressed, for example, with timelines on videos, scrollbars on websites and page numbers on slides. Whereas time provides a natural order to the media, it can also make non-linear interactions more cumbersome. Watching a video from beginning to end is easy, but searching for specific scenes is harder. Time also imposes a certain speed or pace to the media, and makes each \textit{moment}  within the media transient. Video frames, parts of webpages or slides are displayed for a limited amount of time and replaced with other successive information. The abundance of concurrent and transitory information makes audiovisual media difficult to digest and manipulate compared to static media.\\
+
+Just as effective multimedia carefully blends different types of media to advance the narrative, effective \textit{interfaces} for multimedia must capitalize the characteristics of each medium to expose the media to the users and provide tools to interact with it efficiently. Well-designed interfaces facilitate the users' workflow, be it authoring, editing or browsing. This dissertation explores several approaches to designing effective interfaces for audiovisual media by turning the challenges of audiovisual media into opportunities.
+
+\section{Opportunities for Multimedia Interfaces}
+1) harnessing and rearranging spatio-temporal structure, 2) promoting synergy between different modalities, and 3) promoting synergy between automatic algorithms and direct user manipulation
