@@ -1,0 +1,9 @@
+*.aux
+*.pdf
+*.out
+*.log
+*.blg
+*.bbl
+.DS_Store
+Makefile
+Chapters/*.pdf
