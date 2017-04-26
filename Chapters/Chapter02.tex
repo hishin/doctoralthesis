@@ -25,7 +25,7 @@ To address these limitations, we design \textbf{\systemname}, a readable
 interface for lecture videos that resmebles lecture notes with figures and text.
 \systemname\ combines visuals presented in the lecture
 with its transcript text. To generate a \systemname, we first segment the visual content
-of a lecture into a set of discrete images that correspond to equations, figures, or lines of text. Then, we analyze
+of a lecture into a set of discrete \emph{visual entities} that correspond to equations, figures, or lines of text. Then, we analyze
 the temporal correspondence between the transcript and the visuals to determine their relationships. Finally, based on the inferred relationships, we arrange the text and visuals into a hierarchical and linear layout. \\
 
 We compare our interface with a standard video player, and a state-of-the-art interface designed specifically for 
@@ -110,8 +110,142 @@ Our interface automatically categorizes transcript text as explanatory or depict
 Our design gives the viewer relevant context for understanding the visual information without cluttering the output with redundant text. 
 
 %----------------------------------------------------------------------------------------
+\section{The \systemname\ Interface}
+Based on these observations, we designed \textbf{\systemname}, a readable and printable interface that presents both the visual and audio content of a lecture video. Since \systemname\ contains all of the visual and audio information from the original video, it can be used by itself to study the content. Alternatively, it can be linked to the original lecture video to function as an interactive navigation aid. Similar to Monserrat et al's interface \cite{monserrat2013notevideo}, clicking on a visual entity or a transcript sentence plays the original video at that point in time. As the video is played, the corresponding visual entity and/or transcript sentence is highlighted. \\
+
+Figure ~\ref{fig:examples} shows examples of \systemname\ created from \todo{lecture video}. Please visit \todo{url} for the interactive version of the example. Given an input video and its transcript, we generate \systemname\ automatically using the algorithms described in the next section. To test the robustness of our method, we generated \systemname s of 20 lecture videos from 11 different instructors. Please view the appendix for all the results. Here we highlight some of the key features of \systemname .\\
+%
+\paragraph{Linear format highlights lecture progression.} The layout of text and visual entities in \systemname\ often emphasizes the instructor's thought process and clarifies the intermediate steps that lead to a result. Figure~\ref{Fig:feature_highlight}~(left) compares equations in the final view of the blackboard at the end of the lecture to our \systemname . Although the blackboard view shows the same set of equations, it is difficult to infer how the equations relate to and build upon each other. Our \systemname\ shows a step-by-step progression of the visual content. 
+%
+\paragraph{Interspersing text with visuals clarifies connections.} A purely visual summary of the video omits verbal explanations, whereas a purely textual summary (i.e., standard transcript) can be confusing without the corresponding visuals. Instead, \systemname\ interleaves explanatory text and visual entities. This makes it easy to see the connection between illustrations, or the context of an illustration. For instance, compare the leftmost example in Figure~\ref{Fig:visual_line_output}, which shows a final view of the blackboard and Figure \ref{Fig:feature_highlight}~(right) the \systemname\ for the same video. In the former, it is difficult to see the connection between the illustration (pink highlight) and the equation to its right (green highlight) without listening to the lecture. In the latter, the text in-between explains clearly that the equation represents the vector field depicted in the illustration.
+%
+\paragraph{Different levels of detail.} By default, visual transcripts hide redundant depictive text that just describes the corresponding visuals. If a reader wants to see more details, she can reveal the hidden text by clicking on the visual entity. In the case of a long equation or a complicated illustration, the expanded view breaks up the visual and textual information 
+into easy-to-read blocks (Figure~\ref{Fig:teaser}c). 
+%----------------------------------------------------------------------------------------
 
 \section{Algorithms}
+There are three main steps to create \systemname . First, we
+segment the visual content of a lecture into visual entities using a
+dynamic programming approach (\ref{sec:segmentation}). Then, we 
+structure the transcript content by computing temporal correspondences
+between visual entities and transcript sentences
+(\ref{sec:text_corr}). Finally, we generate a \systemname\ by interleaving visual entities with transcript text (\ref{sec:layout}). The rest of this section describes each of these steps in detail.
+%
+\subsection{Pre-processing}
+The visual content in blackboard-style lectures consists of \emph{strokes},
+the set of foreground pixels generated during one continuous drawing action.
+In the context of a graphics tablet, a stroke corresponds to the continuous
+path of a pen while maintaining contact with the writing surface. \todo{Explain that this is not exactly the case in our pre-processing step.} As a pre-processing step, we extract
+individual strokes from the input video using a method similar to
+\cite{monserrat2013notevideo}.  We detect the start and end time of
+each drawing action by comparing the number of foreground pixels in
+consecutive frames. A large increase marks the start of an action,
+while no change marks the end. The difference image between the end
+and start frames gives an image of the stroke drawn during that
+period.
+The manual steps involved in this process are (1) identifying the cursor image, which is automatically removed from all frames, (2) setting a threshold for foreground/background separation, and (3)  setting a smoothing window to get rid of the noise in the foreground pixel count. Depending on the instructor's writing speed, a typical stroke
+comprises several characters to several words, or it can also be a
+part of an illustration or a graph (Figure~\ref{Fig:stroke_examples}).\\
+
+In addition
+to the visuals, lecture videos include an audio track with the instructor's
+spoken explanations. Several on-line video lecture platforms (e.g. Khan Academy,
+YouTube) provide transcripts of the audio. We assume such transcripts and
+we use an online audio transcription service (\url{castingwords.com}) if they are
+not available. 
+%
+\subsection{Segmenting Visual Content}
+\label{sec:segmentation}
+One straightforward strategy for grouping strokes into visual entities
+is to process strokes in the order they are drawn and decide whether
+each stroke represents the start of a new visual entity or is part of
+an existing visual entity formed by previous strokes \cite{mynatt1999flatland}.
+While this simple, greedy approach works in some cases, there are many
+scenarios where it leads to poor segmentations. 
+\marginpar{
+\includegraphics[width=1.2in]{figures/greedy_ex-2.pdf}
+\captionsetup{font=footnotesize}
+ \captionof{figure}{Without considering the semantics of these symbols and before the last stroke ($\frac{\delta p}{\delta y}dy$) is inserted, the first two strokes ($-\int^a_b$ and $dx$) appear like two separate equations with a large space between them.}
+\label{fig:baselineinset}
+}
+For example, in
+Figure~\ref{fig:baselineinset}, there is a large space between the first stroke ($-\int^a_b$, \raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {1}}}) and the second stroke ($dx$, \raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {2}}}). Without considering the semantics of these symbols, 
+they appear to be separate equations. However, once we consider 
+the subsequent set of red strokes(\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {3}}})
+ it becomes clear that this is not the best segmentation. In general, computing good stroke segmentations requires considering
+the global configuration of strokes in both space and time. \\
+
+In this respect, the problem of segmenting strokes into visual
+entities is analogous to the
+\emph{line-breaking} problem, i.e., arranging the words of a paragraph
+into lines.  In both cases, we want to segment a sequence of elements
+(strokes or words) into an optimal set of groups (visual entities or
+lines) defined by some scoring function over candidate entities or lines.
+An important difference is that in the traditional line-breaking problem, only a
+contiguous set of words can be put on the same line. In our case,
+strokes in one visual entity can be interspersed by strokes in a
+different visual entity. For example, the instructor may
+go back and forth between two lines of equations, or
+between a graph and an equation (Figure~\ref{Fig:line_order}).\\
+
+Given these observations, we propose a dynamic programming approach for
+stroke segmentation based on the classic optimal line-breaking
+algorithm~\cite{knuth1981breaking} that handles non-contiguous grouping.
+We first explain the high-level structure of the algorithm before
+describing the scoring function in deta
+%
+\subsubsection{Algorithm Overview}
+Figure \ref{Fig:pseudocode} gives a detailed pseudo-code of our segmentation algorithm.\\    
+%
+\begin{figure}[h!]
+        \centering
+        \includegraphics[width=\textwidth]{figures/pseudocode_image.pdf}
+	\captionsetup{font=footnotesize}
+        \caption{We use dynamic programming to segment strokes into an optimal
+set of visual entities. For each stroke, $s_i$, the algorithm considers all previous
+partial solutions, $V_{j<i}$ and $S_{ji}=\{s_{j+1}, ..., s_i\}$. For each
+$V_j$, it considers two possibilities: merging $S_{ji}$ with an existing
+entity or forming a new entity.}
+        \label{Fig:pseudocode}
+\end{figure}\\
+%
+Given a sequence of $n$ strokes $S = \{s_o,\dots,s_n\}$ ordered by
+when they appear in the video, we find the optimal set of inter-stroke
+boundaries that segment the strokes into visual entities. We refer to the boundary between $s_i$ and $s_{i+1}$ as
+$b_i$.
+%
+Our algorithm processes the strokes in order and for each $s_i$
+computes and records the optimal set of visual entities $V_i$ formed
+by all strokes up to $b_i$, along with the total score $E(V_i)$ of
+this partial solution.
+%
+To determine the optimal partial solution for stroke $s_i$, we
+consider each previous boundary $b_j$ where
+$\setlength{\thickmuskip}{0mu} j<i$, and evaluate two possible ways of
+grouping the set of strokes $S_{ji} = \{s_\text{j+1},
+\dots,s_\text{i}\}$: 1) merging $S_{ji}$ with one of the existing entities
+in $V_j$, or 2) forming a new entity with $S_{ji}$. 
+%
+Allowing $S_{ji}$ to be merged with existing entities enables our
+algorithm to support non-contiguous stroke groupings.
+%
+We take the better (lower) of the two scores for $S_{ji}$ and add it
+to $E(V_j)$ to obtain the total score for the proposed
+segmentation. After considering all candidate boundaries $b_j$, we
+identify the partial solution with the minimum segmentation score and
+record the corresponding set of entities as $V_i$ and the score as $E(V_i)$.
+%
+Once the algorithm iterates through all strokes, $V_n$ gives the
+optimal set of visual entities for the entire lecture.
+%
+%
+\subsubsection{Scoring Function}
+The dynamic programming algorithm described above requires a scoring
+function that evaluates the goodness of candidate visual entities
+formed by sets of strokes. We define this scoring function based on
+several observations: Strokes within a visual entity are (1) compactly arranged (2) and horizontally aligned. In addition, separate visual entities are (3) spatio-temporally distant from each other.
+%
+
 %----------------------------------------------------------------------------------------
 \section{User Evaluation}
 %----------------------------------------------------------------------------------------
