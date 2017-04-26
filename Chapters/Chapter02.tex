@@ -54,7 +54,7 @@ By default, \systemname s hide redundant information to show a compact represent
 %
 Presenting video content in this manner allows users to review the lecture at their own pace while getting both the visual and textual information in a readable, skimmable format.
 %
-\systenmame s is also linked to the video such that clicking on the text or the visuals plays the video from the corresponding location.
+\systemname s is also linked to the video such that clicking on the text or the visuals plays the video from the corresponding location.
 %
 In this respect, \systemname s offer many of the benefits of traditional static media, such as textbooks and lecture notes, while also giving viewers direct access to the video content.\\
 
@@ -63,9 +63,56 @@ There are two main challenges in transforming a video and its transcribed audio 
 To segment the visuals into meaningful figures, we propose a dynamic programming approach that takes into account both the spatial layout of strokes and the time when they were drawn. We further time-align the transcript with the audio and use this alignment to establish correspondences between the visuals and the text. Finally, we use the visual-text correspondence to detect redundant information and arrange the content in a compact, sequential layout where the text is organized into readable paragraphs.\\
 
 We evaluate our approach with a user study that compares \systemname\ with a baseline transcript-based video player, and an existing, state-of-the-art visual-based video player developed by Monserrat et al \cite{monserrat2013notevideo}. We measure performance on summarization and search tasks, and observe how the participants interact with the interfaces. We find that \systemname\ is an effective interface for studying lecture videos. Specifically, users performed best using \systemname\ for search tasks involving text. Users noted that \systemname\ helped them to get a quick overview of the video including the details conveyed only through the text, and to efficiently focus on parts of interest. They also found the structured text easier to read and connect to relevant visuals than the baseline text-only transcript. In a post-study survey, users strongly preferred our interface for learning over the other two interfaces.
-
+%----------------------------------------------------------------------------------------
 \section{Previous Work}
+%
+\subsection{Video Visualization}
+There is a large body of work that aims to automatically summarize videos to facilitate navigation and browsing, but most research focuses on live action footage which is very different from educational videos.  Recent survey papers \cite{truong2007video,borgo2011survey} comprehensively review these techniques, which can be broadly divided into two classes according to their output: \textit{video skims} and \textit{still-image abstracts}. \\
+%
+Video skims \cite{he1999auto,ekin2003automatic,ngo2005video,lu2013story} summarize a longer video with a shorter video, usually consisting of segments extracted from the original video. These skims retain audio and motion elements and are especially useful for understanding dynamic scenes, but they are less suitable for conveying the dense, static information of blackboard-style lectures. \\
+%
+Still-image based methods~\cite{uchihashi1999video,barnes2010video,hwang2006cinema,boreczky2000interactive}
+primarily focus on conveying the visual content of a
+video in static form through a collection of salient images extracted from the video.~\cite{christel2002collages} and~\cite{pickering2003anses} developed a still-image based method specific to news stories that combines text and images into summaries.\\
+%
+Most relevant to our work is~\cite{choudary2007summarization}, which summarizes blackboard-style lectures by creating a panoramic frame of the board. In addition to the visual content presented on the board, our interface includes the audio content and therefore maintains the sequence of the lecture and makes textual content directly accessible as well.\\
+
+\subsection{Tools for Online Lecture Videos}
+\cite{kim2014data} uses interaction data collected from MOOC platforms to introduce a set of techniques that augment existing video interface widgets. For lecture videos based on slides, \cite{li2000browsing} use separate slides to automatically generate table-of-content overviews. These works \textit{annotate} the original video with useful data to facilitate navigation, but do not reformat the video content. \cite{pavel2014video} provides a tool to create \textit{video digests}, structured summaries of informational videos organized into chapters and sections.\\
+%
+They use  only the transcript to segment and summarize the video, whereas we leverage both the visual and audio content. Most closely related to our work is Monserrat et al.'s interface \cite{monserrat2013notevideo}, which presents a summary image of blackboard-style lecture videos. Their image is composed of click-able visual links to support spatial and temporal navigation. Although they provide a search box for the transcript, text is not included as part of their summary display.
+
+%----------------------------------------------------------------------------------------
 \section{Design Principles}
+%
+The design of \systemname\ is informed by the following key characteristics of blackboard-style lectures:
+%
+\paragraph{Lectures present information progressively.}
+Most lectures convey concepts in a progressive manner where each new piece of information builds on the previously presented content.
+For example, Figure~\ref{Fig:key_ideas} (\textit{top}) shows a panoramic image of the board for an entire lecture, where the labels show the order in which things were presented. Understanding the lecture often requires knowing this order.
+%
+To emphasize presentation order, our \systemname\ arranges all the content within the video in a top-to-bottom linear format.
+%
+\paragraph{Visuals are organized into discrete entities.} The visual content of a lecture is typically organized into well-defined entities (e.g., a line of text, an equation, an explanatory figure) that correspond to the set of presented concepts. 
+%
+For example, Figure~\ref{Fig:key_ideas} (\textit{top}) shows visual entities in a calculus lecture.   Each visual entity consists of strokes that are close together in both space and time. Moreover, since people are accustomed to parsing visual information line-by-line, from top to bottom, and left to right, visual entities are often laid out in the same manner. 
+%
+Building on this observation, our system segments drawings on the board into visual entities based on their spatial alignment and temporal proximity.
+%
+\paragraph{Audio content complements visuals.}
+In our analysis of lecture videos, we found that verbal explanations tend to serve one of two broad objectives. Explanations given while the instructor is not drawing are often \emph{explanatory}, providing additional information not directly represented in the visuals or making connections between drawings. On the other hand, explanations given while the instructor is drawing are typically more \emph{depictive}, repeating or reading aloud the visual information (Figure~\ref{Fig:key_ideas}, \textit{bottom}).
+%
+While depictive explanations can help viewers follow along with the video, they often result in long, repetitive transcript text that is cumbersome to read or skim through. This problem is exacerbated by the fact that most spoken explanations are somewhat colloquial.\\
+%
+Our interface automatically categorizes transcript text as explanatory or depictive, and in our output, we hide depictive sentences and show explanatory text interspersed with the set of visual entities extracted from the video. 
+\cite{large1995multimedia} and \cite{christel2001effect} have shown that such combinations of pictures and captions aid recall and comprehension as well as navigation of video material.
+%
+Our design gives the viewer relevant context for understanding the visual information without cluttering the output with redundant text. 
+
+%----------------------------------------------------------------------------------------
+
 \section{Algorithms}
+%----------------------------------------------------------------------------------------
 \section{User Evaluation}
+%----------------------------------------------------------------------------------------
 \section{Discussion}
