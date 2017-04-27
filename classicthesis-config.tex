@@ -56,6 +56,7 @@
 \newcommand{\Ie}{I.\,e.}
 \newcommand{\eg}{e.\,g.}
 \newcommand{\Eg}{E.\,g.} 
+\newcommand\todo[1]{\textcolor{red}{#1}}
 
 \newcounter{dummy} % Necessary for correct hyperlinks (to index, bib, etc.)
 \providecommand{\mLyX}{L\kern-.1667em\lower.25em\hbox{Y}\kern-.125emX\@}
@@ -66,7 +67,9 @@
 %----------------------------------------------------------------------------------------
 
 \usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
-
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
 %------------------------------------------------
 
 %\PassOptionsToPackage{ngerman,american}{babel}  % Change this to your language(s)
@@ -143,6 +146,7 @@ natbib=true % natbib compatibility mode (\citep and \citet still work)
 \newcommand{\tableheadline}[1]{\multicolumn{1}{c}{\spacedlowsmallcaps{#1}}}
 \newcommand{\myfloatalign}{\centering} % To be used with each float for alignment
 \usepackage[format=plain, justification=raggedright]{caption}
+\usepackage{subcaption}
 \captionsetup{font=small}
 \usepackage{subfig}  
 
