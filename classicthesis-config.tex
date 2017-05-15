@@ -147,8 +147,18 @@ natbib=true % natbib compatibility mode (\citep and \citet still work)
 \newcommand{\myfloatalign}{\centering} % To be used with each float for alignment
 \usepackage[format=plain, justification=raggedright]{caption}
 \usepackage{subcaption}
-\captionsetup{font=small}
-\usepackage{subfig}  
+\captionsetup{font=footnotesize}
+%\usepackage{subfig}  
+
+
+\newenvironment{mldescription}{%
+  \begin{addmargin}[2.5em]{0em}
+    \setlength{\parindent}{-2.5em}%
+    \newcommand*{\mlitem}[1]{\par\spacedlowsmallcaps{##1}}\indent
+}{%
+  \end{addmargin}
+  \medskip
+}
 
 %----------------------------------------------------------------------------------------
 %	CODE LISTINGS SETUP

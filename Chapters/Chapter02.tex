@@ -3,7 +3,6 @@
 
 
 \chapter{Navigating Lecture Videos} % Chapter title
-
 \label{ch:visualtranscript} % For referencing the chapter elsewhere, use
 
 %----------------------------------------------------------------------------------------
@@ -15,7 +14,7 @@ different approach from someone who has seen the video previously and is
 watching again only to review. In this chapter, we focus on the scenario of
 watching lecture videos. \\
 
-Lecture videos are growing in popularity through Massive Open Online Courses
+Lecture videos are growing in popularity, especially through Massive Open Online Courses
 (MOOCs) and flipped classroom models.
 However, learning with these videos using existing video player interfaces can
 be challenging. Viewers cannot digest the lecture material at their
@@ -49,9 +48,9 @@ For these and other reasons, some people prefer static learning materials such a
 
 Inspired by lecture notes, we present \systemname, a readable interface for both the visual and audio content of a lecture video that facilitates reviewing, browsing and navigation. 
 %
-We focus on blackboard-style lectures that show a (possibly infinite) blackboard where the instructor writes down by hand the content of the lecture. \systemname s aggregate the full lecture content in a structured format where visual information is segmented and grouped with the corresponding narration text. For example, Figure~\ref{Fig:teaser}(b) shows our automatically generated output for a math lecture that interleaves verbal explanations with the corresponding equations written on the board. 
+We focus on blackboard-style lectures that show a (possibly infinite) blackboard where the instructor writes down by hand the content of the lecture. \systemname s aggregate the full lecture content in a structured format where visual information is segmented and grouped with the corresponding narration text. For example, Figure~\ref{Fig:videonote_example} shows our automatically generated output for a math lecture that interleaves verbal explanations with the corresponding equations written on the board. 
 %
-By default, \systemname s hide redundant information to show a compact representation of the content that viewers can expand interactively to show relevant details (Figure~\ref{Fig:teaser}(c)). 
+By default, \systemname s hide redundant information to show a compact representation of the content that viewers can expand interactively to show relevant details (Figure~\ref{Fig:videonote_expanded}). 
 %
 Presenting video content in this manner allows users to review the lecture at their own pace while getting both the visual and textual information in a readable, skimmable format.
 %
@@ -63,7 +62,25 @@ There are two main challenges in transforming a video and its transcribed audio 
 %
 To segment the visuals into meaningful figures, we propose a dynamic programming approach that takes into account both the spatial layout of strokes and the time when they were drawn. We further time-align the transcript with the audio and use this alignment to establish correspondences between the visuals and the text. Finally, we use the visual-text correspondence to detect redundant information and arrange the content in a compact, sequential layout where the text is organized into readable paragraphs.\\
 
-We evaluate our approach with a user study that compares \systemname\ with a baseline transcript-based video player, and an existing, state-of-the-art visual-based video player developed by Monserrat et al \cite{monserrat2013notevideo}. We measure performance on summarization and search tasks, and observe how the participants interact with the interfaces. We find that \systemname\ is an effective interface for studying lecture videos. Specifically, users performed best using \systemname\ for search tasks involving text. Users noted that \systemname\ helped them to get a quick overview of the video including the details conveyed only through the text, and to efficiently focus on parts of interest. They also found the structured text easier to read and connect to relevant visuals than the baseline text-only transcript. In a post-study survey, users strongly preferred our interface for learning over the other two interfaces.
+We evaluate our approach with a user study that compares \systemname\ with a baseline transcript-based video player, and an existing, state-of-the-art visual-based video player developed by Monserrat et al \cite{monserrat2013notevideo}. We measure performance on summarization and search tasks, and observe how the participants interact with the interfaces. We find that \systemname\ is an effective interface for studying lecture videos. Specifically, users performed best using \systemname\ for search tasks involving text. Users noted that \systemname\ helped them to get a quick overview of the video including the details conveyed only through the text, and to efficiently focus on parts of interest. They also found the structured text easier to read and connect to relevant visuals than the baseline text-only transcript. In a post-study survey, users strongly preferred our interface for learning over the other two interfaces.\\
+%---------------------------------------------------------------------------------------
+\begin{figure}[ht!]
+        \centering
+        \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{figures/khan3_page1.pdf}
+        \end{subfigure}
+        \caption{Example VideoNote}
+        \end{figure}
+\begin{figure}[!ht]\ContinuedFloat
+        \centering
+        \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{figures/khan3_page2.pdf}
+        \end{subfigure}       
+        \caption{Example VideoNote (continued)}
+        \label{Fig:videonote_example} 
+\end{figure}
+%
+
 %----------------------------------------------------------------------------------------
 \section{Previous Work}
 %
@@ -121,8 +138,16 @@ Figure ~\ref{fig:examples} shows examples of \systemname\ created from \todo{lec
 %
 \paragraph{Interspersing text with visuals clarifies connections.} A purely visual summary of the video omits verbal explanations, whereas a purely textual summary (i.e., standard transcript) can be confusing without the corresponding visuals. Instead, \systemname\ interleaves explanatory text and visual entities. This makes it easy to see the connection between illustrations, or the context of an illustration. For instance, compare the leftmost example in Figure~\ref{Fig:visual_line_output}, which shows a final view of the blackboard and Figure \ref{Fig:feature_highlight}~(right) the \systemname\ for the same video. In the former, it is difficult to see the connection between the illustration (pink highlight) and the equation to its right (green highlight) without listening to the lecture. In the latter, the text in-between explains clearly that the equation represents the vector field depicted in the illustration.
 %
-\paragraph{Different levels of detail.} By default, visual transcripts hide redundant depictive text that just describes the corresponding visuals. If a reader wants to see more details, she can reveal the hidden text by clicking on the visual entity. In the case of a long equation or a complicated illustration, the expanded view breaks up the visual and textual information 
-into easy-to-read blocks (Figure~\ref{Fig:teaser}c). 
+\begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.8\textwidth]{figures/videonote_expand.pdf}
+	\captionsetup{font=footnotesize}
+        \caption{\systemname\ is organized hierarchically. The default view hides descriptive details to present a compact summary. Users can click on a higher-level figure to expand its detailed description and step-by-step derivation.} 
+        \label{Fig:videonote_expanded}
+\end{figure}\\
+%
+\paragraph{Different levels of detail.} By default, \systemname\ hides redundant depictive text that just describes the corresponding visuals. If a reader wants to see more details, she can reveal the hidden text by clicking on the visual entity. In the case of a long equation or a complicated illustration, the expanded view breaks up the visual and textual information 
+into easy-to-read blocks (Figure~\ref{Fig:videonote_expanded}). 
 %----------------------------------------------------------------------------------------
 
 \section{Algorithms}

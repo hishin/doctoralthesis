@@ -1,56 +1,109 @@
 % Chapter 3
-
-\chapter{Math Test Chapter} % Chapter title
-
-\label{ch:mathtest} % For referencing the chapter elsewhere, use \autoref{ch:mathtest}
-
-%----------------------------------------------------------------------------------------
-
-\lipsum[13]
+\newcommand{\voicescript}[0]{VoiceScript}
+\chapter{Authoring Voice Recordings} % Chapter title
+\label{ch:voicescript} % For referencing the chapter elsewhere, use \autoref{ch:mathtest}
 
 %----------------------------------------------------------------------------------------
+% Abstract
+%----------------------------------------------------------------------------------------
+\section{Introduction}
+Audio recordings of speech are prevalent across a variety of media, including podcasts, audio books, e-lectures and voice-overs for narrated videos.
+%
+Creating such audio recordings typically involves three main tasks: writing a script, recording the speech, and editing the recorded audio. 
+%
+While authors typically start by writing at least a rough script of what they plan to record, in practice, the process of creating the final audio rarely involves a simple linear progression through these steps. A more common workflow is to move back and forth between writing or editing the script, recording or improvising subsets of the speech, and editing together portions of multiple recorded takes.\\
 
-\section{Some Formulas}
+For example, consider the case of recording the audio for an online lecture. After writing some notes to use as a rough script, the lecturer records a few takes and listens to the speech. She decides that one of the concepts requires a more detailed explanation, so she edits her notes, re-records the relevant speech, and merges the new recording into the final audio. Such updates may also happen in response to feedback from viewers after the lecture is published online. Similarly, when authoring a voice-over for a video, the initial recording may not align perfectly with the visual footage (e.g., some spoken explanations may be too short or too long for the corresponding video clips). In a collaborative scenario, an \textit{editor} could request edits to the initial recording of a \textit{narrator}. In each case, users may need to modify the script and re-record certain sections of the speech. In general, the process of recording and editing the speech together often reveals issues that require going back to edit portions of the script.\\
 
-Due to the statistical nature of ionisation energy loss, large fluctuations can occur in the amount of energy deposited by a particle traversing an absorber element\footnote{Examples taken from Walter Schmidt's great gallery: \\ \url{http://home.vrweb.de/~was/mathfonts.html}}.  Continuous processes such as multiple scattering and energy loss play a relevant role in the longitudinal and lateral development of electromagnetic and hadronic showers, and in the case of sampling calorimeters the measured resolution can be significantly affected by such fluctuations in their active layers.  The description of ionisation fluctuations is characterised by the significance parameter $\kappa$, which is proportional to the ratio of mean energy loss to the maximum allowed energy transfer in a single collision with an atomic electron: \graffito{You might get unexpected results using math in chapter or section heads. Consider the \texttt{pdfspacing} option.}
-\begin{equation}
-\kappa =\frac{\xi}{E_{\mathrm{max}}} %\mathbb{ZNR}
-\end{equation}
-$E_{\mathrm{max}}$ is the maximum transferable energy in a single collision with an atomic electron.
-\[E_{\mathrm{max}} =\frac{2 m_{\mathrm{e}} \beta^2\gamma^2 }{1 + 2\gamma m_{\mathrm{e}}/m_{\mathrm{x}} + \left ( m_{\mathrm{e}} /m_{\mathrm{x}}\right)^2}\ ,\]
-where $\gamma = E/m_{\mathrm{x}}$, $E$ is energy and $m_{\mathrm{x}}$ the mass of the incident particle, $\beta^2 = 1 - 1/\gamma^2$ and $m_{\mathrm{e}}$ is the electron mass. $\xi$ comes from the Rutherford scattering cross section and is defined as:
-\begin{eqnarray*} \xi  = \frac{2\pi z^2 e^4 N_{\mathrm{Av}} Z \rho
-\delta x}{m_{\mathrm{e}} \beta^2 c^2 A} =  153.4 \frac{z^2}{\beta^2}
-\frac{Z}{A}
-\rho \delta x \quad\mathrm{keV},
-\end{eqnarray*}
-where
+Unfortunately, most existing tools for authoring speech recordings do not facilitate this back and forth workflow. Typically, users write and edit the script in a text editing environment and then record and edit the audio in a standard waveform editing tool. The central issue  is that the written script and the recorded audio are treated as completely separate entities.
+%
+This separation introduces several sources of friction in the workflow. When the user records the speech, any deviations from the initial written text (either intentional or not) are not reflected in the script. Evaluating the recordings to decide what takes to choose or what script modifications are necessary requires careful scrubbing through the audio to find the relevant parts. In addition, once the user chooses a particular version of the speech to include, the script no longer matches the speech, which complicates any subsequent edits. Finally, if the user decides to modify a portion of the script, she must figure out what subset to re-record to ensure that the new recording can be merged in without creating audio artifacts (e.g., replacing a single word in a recorded sentence is hard to do since the word may not blend seamlessly with the adjacent words).\\
 
-\begin{tabular}{ll}
-$z$ & charge of the incident particle \\
-$N_{\mathrm{Av}}$ & Avogadro's number \\
-$Z$ & atomic number of the material \\
-$A$ & atomic weight of the material \\
-$\rho$ & density \\
-$ \delta x$ & thickness of the material \\
-\end{tabular}
+To address these challenges, we design \voicescript\, an interface that supports script writing, speech recording, and audio editing in a unified way. Our key idea is to maintain a so-called \emph{master-script} that is linked to the audio and always reflects the current state of the project, including unrecorded, recorded, improvised and edited portions of the script. We use automatic speech recognition to transcribe the audio into text, and solve the task of combining together multiple recordings and syncing audio with the script like a text differencing and merging problem. To help users maintain a consistent master-script, \voicescript\ provides semi-automated tools for merging recorded takes into the master-script and visualizations that indicate what portions of the script need to be recorded (or re-recorded) in response to edits to the script. The combination of these features enables users to move back and forth between script editing, speech recording and audio editing in a seamless fashion.\\
 
-$\kappa$ measures the contribution of the collisions with energy transfer close to $E_{\mathrm{max}}$.  For a given absorber, $\kappa$ tends towards large values if $\delta x$ is large and/or if $\beta$ is small.  Likewise, $\kappa$ tends towards zero if $\delta x $ is small and/or if $\beta$ approaches $1$.
-
-The value of $\kappa$ distinguishes two regimes which occur in the description of ionisation fluctuations:
-
-\begin{enumerate}
-\item A large number of collisions involving the loss of all or most of the incident particle energy during the traversal of an absorber.
-
-As the total energy transfer is composed of a multitude of small energy losses, we can apply the central limit theorem and describe the fluctuations by a Gaussian distribution. This case is applicable to non-relativistic particles and is described by the inequality $\kappa > 10 $ (\ie, when the mean energy loss in the absorber is greater than the maximum energy transfer in a single collision).
-
-\item Particles traversing thin counters and incident electrons under any conditions.
-
-The relevant inequalities and distributions are $ 0.01 < \kappa < 10 $, Vavilov distribution, and $\kappa < 0.01 $, Landau distribution.
-\end{enumerate}
+\voicescript\ can be used to create audio recordings in a variety of workflows, including recording a fairly detailed script, recording without any script, and a collaborative scenario between two
+users. We conduct informal evaluations where users create their own audio recordings to summarize technical articles. We also compare \voicescript\ to a state-of-the-art text-based audio editing tool for the task of creating an audio recording from multiple raw recordings. The results demonstrate that \voicescript\ supports a wide range of workflows and enables first-time users to  easily author speech recordings. User feedback suggests that the integration of script and audio through the master-script greatly facilitates the authoring process. 
 
 %----------------------------------------------------------------------------------------
+\section{Previous Work}
+\subsection{Scripting}
+Adobe Story \cite{adobestory2016}, FinalDraft \cite{finaldraft2016} and Celtx \cite{celtx2016} are examples of professional software dedicated to script writing. They support collaboration, automatic formatting, navigation and planning for future production, but they treat the script as a text document that is essentially separate from the recordings. In fact, in our formative interviews of lay and professional audio producers, we found that many of them use general-purpose document editors like Google Docs \cite{googledocs2016} or Microsoft Word \cite{microsoftword2016} to prepare their scripts.
 
-\section{Various Mathematical Examples}
+\subsection{Recording and Editing Audio}
+At the recording and editing stage, many users rely on commercial digital audio workstations, like Adobe Audition \cite{adobeaudition2016}, Avid ProTools \cite{avidprotools}, GarageBand \cite{garageband} and Audacity \cite{audacity}. Video editing software such as Adobe Premiere \cite{premier} or ScreenFlow \cite{screenflow} are also commonly used. These tools allow users to edit audio by manipulating waveforms in a multi-track timeline interface. They also provide a wide variety of low-level signal processing functions. However, since they are designed to serve as general-purpose audio production systems, they include many features that are not directly relevant for creating audio narratives whose main content is speech. Hindenburg Systems \cite{hindenburg} develops tools that are specifically targeted for audio narratives. Still, they are primarily concerned only with the audio and they do not deal with the script directly.   
 
-If $n > 2$, the identity \[t[u_1,\dots,u_n] = t\bigl[t[u_1,\dots,u_{n_1}], t[u_2,\dots,u_n] \bigr]\] defines $t[u_1,\dots,u_n]$ recursively, and it can be shown that the alternative definition \[t[u_1,\dots,u_n] = t\bigl[t[u_1,u_2],\dots,t[u_{n-1},u_n]\bigr]\] gives the same result.
+\subsection{Text-Based Audio Editing}
+Recently, several researchers have explored using audio transcripts to support text-based navigation and editing of audio. Whittaker and Amento \cite{whittaker2004semantic} demonstrate that users prefer editing voicemail through its transcript instead of its waveform. Inspired by similar intuition, Casares et al. \cite{casares2002simplifying} and Berthouzoz et al. \cite{berthouzoz2012tools} enable video navigation and editing through time-aligned transcripts. Rubin et al. \cite{rubin2013content} extend this approach to audio narratives and propagate edits in the transcript text to the corresponding speech track. These systems all focus on editing pre-recorded audio via its transcript, whereas we also consider how script edits influence the recording process and how audio edits also evolve the script.\textit{NarrationCoach} developed by Rubin et al. \cite{rubin2015capture} also uses automatic speech recognition to align speech recordings with an input script. However, its focus, improving speech performance at recording time, is different from \voicescript. Here, we focus on facilitating the back-and-forth workflow between script writing and speech recording.\\
+\voicescript\ also takes advantage of text-based navigation and editing, but unlike these systems, it supports a dynamic workflow where both the audio recordings and the underlying script can be continuously updated.      
+
+%----------------------------------------------------------------------------------------
+\section{Design Principles}
+To learn about current practices and challenges for creating speech recordings, we interviewed ten professional lecturers and two video producers who regularly create audio recordings for online lectures that are published on online platforms, including YouTube, Udacity, EdX and MITx. The following are several key insights we gained from the interviews.\\
+
+\paragraph{Scripts are prevalent.} All of the lecturers prepared written materials about what they were going to say before they started recording. The format and level-of-details of these scripts varied. For instance, one lecturer used his lecture slides containing images and a list of bullet points as his script. Another lecturer typed a thorough word-for-word transcription of what he was going to say in a text document. Another person used handwritten notes as an outline. In all cases, while they were recording, they kept the scripts within their view and depended on them to guide their speech.  
+
+\paragraph{Recordings deviate from the script.} In many cases, the initial scripts were rough or incomplete. Only two out of the ten lecturers we interviewed prepared a word-for-word script before recording. The majority used lecture slides or handwritten notes containing a rough outline of what they were going to record. They used these outlines as guides and improvised most of the actual recorded speech. One of the lecturers did an initial recording from the outline, and then used that to flesh out the script before recording additional takes. Even when a word-for-word script was prepared beforehand, the recording often did not follow the script exactly. While recording, the speaker sometimes remembered and added more details, or found a more natural way of saying a written sentence. In some cases, major script changes were made long after the initial recording was created. For example, one lecturer noted that he periodically revisited and re-recorded parts of lectures to add up-to-date examples. The result is that recorded speech almost always differs either slightly or significantly from the initial written script. \\
+While a few people edited the written script to resolve these discrepancies, in most cases the script and recorded audio end up in inconsistent states. This inconsistency makes it difficult for users to update the recording. They cannot simply read and edit the script because it may not accurately represent the recorded audio. Moreover,  changing any portion of the recording requires identifying the appropriate subset of speech to re-record such that the new recording can be merged into the final track with no noticeable seams at the take boundaries.  
+
+\paragraph{Final track includes multiple recordings.} As mentioned above, users almost always record multiple takes of the speech. Thus, assembling the final track typically requires merging these takes together using audio editing software. Many users noted that aligning the waveforms of multiple takes, finding the best take, and then cutting and joining them seamlessly were very time consuming and tedious tasks.
+
+%----------------------------------------------------------------------------------------\
+\section{The \voicescript\  Interface}
+Based on these observations, we designed \voicescript\, a speech authoring interface that supports script writing, speech recording and audio editing in a single unified workflow. Our interface is built on three key features.
+
+\paragraph{Text-based representation of audio.} We build on previous work~\cite{casares2002simplifying,whittaker2004semantic,berthouzoz2012tools,rubin2013content} that demonstrates the benefits of text-based representations of spoken audio for navigation and editing. \voicescript\ uses automatic speech recognition to transcribe audio recordings in realtime and represent each take with a verbatim transcript. As with previous systems, edits to these text transcripts are automatically propagated to the audio, which facilitates simple audio editing tasks. 
+
+\paragraph{\emph{Master-script} view.} To help users manage the relationship between scripted text and recorded speech, we introduce the notion of a \emph{master-script} that shows a unified view of both unrecorded portions of the script and recorded speech included in the final track. By representing and visualizing both recorded and unrecorded text, the master-script provides a complete, readable view of the current state of the project that evolves as the user records and adds new takes to the final track, edits recorded text, or adds/modifies text that must be recorded. 
+
+\paragraph{Merge process.} Since recorded text typically differs from the script, \voicescript\ provides an interface for merging changes into the master-script. The fact that we represent all recorded audio as text allows us to use standard text differencing to identify conflicts and execute merges. One key difference between our scenario and standard text merging is that recorded audio cannot simply be cut and merged into the master-script at any arbitrary word boundary. In many cases, the temporal gap between spoken words is not big enough to produce a seamless edit in the final track. Our merge interface takes this into account and helps the user execute merges that are likely to be artifact-free.\\
+
+The rest of this section describes our interface through typical usage scenarios of how users might create an audio recording. 
+%
+\subsection{Typical Usage Scenarios}
+The rest of this section describes our interface through typical usage scenarios of how users might create an audio recording. 
+
+\subsubsection{One-pass authoring.} 
+Typically, the user begins by writing an outline of points to record in the master-script.
+The text appears in light grey to indicate that these parts have not been recorded yet (Figure~\ref{fig:ui_aligned} \textit{left}). At this stage, the master-script is like an ordinary, editable text document. \\
+
+Once the user starts recording, the audio is transcribed in real time and verbatim text corresponding to each take appears in a separate transcript tab (Figure~\ref{fig:ui_aligned} \textit{right}). Each transcript is time-aligned with the corresponding recording, so the user can quickly navigate to specific
+parts of the audio by clicking on a word in the transcript. \\
+
+The next task is to cut and merge parts of the recording into the final track. The user needs to compare the recording to the original outline, replace parts of the outline with the corresponding recording, and/or insert improvised speech. To this end, we provide a \textit{compare-view} that aligns segments of the recording transcript to corresponding segments in the master-script and shows them side-by-side. To indicate improvised portions of the audio, any segment of the transcript that does not correspond to any part of the master-script is highlighted in yellow. To indicate missing portions in the audio, any segment of the master-script that does not correspond to any part of the transcript is highlighted in red. To
+view more detailed discrepancies between the script and recording, the
+user can enable a \textit{diff-view} that displays per-word differences
+using standard track change markers (i.e., strikethroughs for
+missing words and highlighting for added words). \\
+
+To add recorded audio to the final track, the user can \textit{accept} any portion of the recording by clicking a button next to the appropriate transcript segment. If there is a corresponding segment in the master-script, the accepted transcript segment replaces it. If there is no corresponding master-script segment, the accepted transcript segment is simply inserted into the master-script. Within the master-script, accepted segments appear in black to indicate that these are recorded portions of text that have been added to the final track. \\
+
+If the user records more than one take, the user has to compare and select between multiple versions of the same segment. In addition to each of the transcript tabs, the \textit{all} tab provides a summary of all of the takes. For each segment in the master script, this tab displays all the corresponding transcript segments from all of the audio takes. A drop-down button next to a transcript segment  indicates that there are multiple versions (or takes)  of the  segment. Clicking on the button opens a list showing the alternative versions (Figure ~\ref{fig:ui_aligned}-5). The user can listen to any of these takes and select one without having to search through individual takes. \\
+
+Finally, the user has to determine which parts of the outline is still missing. When the \textit{all} tab is in focus, any part of the master-script that has not been recorded in any of the takes is highlighted in red. In this way, the user can tell at a glance what has already been recorded and what still needs to be recorded. All of the dark (i.e. recorded) text in the master-script represents the current state of the final audio track; all of the grey text has not been recorded or is recorded but the author has not yet accepted it into the final track. 
+
+\subsubsection{Iterative and collaborative authoring.} 
+The final recording is rarely produced in a single pass. Instead, the user often iterates back
+and forth between editing the master-script, recording audio takes, and merging
+audio segments into the final track. It is also common for multiple people to collaborate on a single voice-over. For example, a narrator who records the voice-over may work with others who write/edit the script, or several people may work on a recording with multiple voices. \\ 
+
+During any point in the process, users can edit the master-script
+like a text document.  For example, a user can simply insert
+more text to record or make changes to unrecorded text to flesh
+out the original outline. These edits can include verbatim script as well as comments or stage directions (e.g., "include examples" or "speak softer").
+A user can also edit or delete recorded portions of the text. Deleting recorded text from the master-script will remove the corresponding portion of the audio from the final track. Altering recorded text can introduce audio artifacts (e.g., when a word is deleted mid-sentence), or it could mean that the corresponding text no longer match the underlying audio. When the user edits a recorded word without completely deleting it, the word is flagged as \textit{dirty} (italicized and marked blue) to remind the user to review or re-record relevant portions. Finally, the user has an option to correct the transcription of recorded words without affecting the underlying audio or flagging it as \textit{dirty}.\\
+
+In both iterative and collaborative editing, users need to identify (1) new content that needs to be recorded for the first time, and (2) existing content that needs to be re-recorded after the script edits. To visualize this information,  \voicescript\ keeps track of per-word metadata about whether a word is unrecorded (grey), recorded and unedited (black), or recorded and edited (blue italics). For collaboration, this metadata is passed between users with the script and recordings. The visualization and the text-based  editing/merging interface facilitates audio editing even when different persons work on different parts of editing the script, recording the audio and/or re-arranging the recorded audio. \\ 
+
+\subsubsection{Other workflows.} 
+One key benefit of our interface is that it supports a wide range of workflows for different users and scenarios. For instance, instead of starting with a written outline, the user can begin with an empty master-script, start recording, and then use  the initial recording as an outline. The user can also record the entire script in a single take, or work on a single section at a time. \\
+
+Please visit \todo{url} to see a video describing the interface. The voiceover for this video was created by two authors collaborating over \voicescript . 
+
+%----------------------------------------------------------------------------------------
+\section{Algorithms}
+
+%----------------------------------------------------------------------------------------
+\section{User Evaluation}
+
+%----------------------------------------------------------------------------------------
+\section{Discussion}
