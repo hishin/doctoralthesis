@@ -1,5 +1,5 @@
 % Chapter 2
-\newcommand{\systemname}[0]{VideoNote}
+\newcommand{\systemname}[0]{VisualTranscript}
 
 
 \chapter{Navigating Lecture Videos} % Chapter title
@@ -48,7 +48,7 @@ For these and other reasons, some people prefer static learning materials such a
 
 Inspired by lecture notes, we present \systemname, a readable interface for both the visual and audio content of a lecture video that facilitates reviewing, browsing and navigation. 
 %
-We focus on blackboard-style lectures that show a (possibly infinite) blackboard where the instructor writes down by hand the content of the lecture. \systemname s aggregate the full lecture content in a structured format where visual information is segmented and grouped with the corresponding narration text. For example, Figure~\ref{Fig:videonote_example} shows our automatically generated output for a math lecture that interleaves verbal explanations with the corresponding equations written on the board. 
+We focus on blackboard-style lectures that show a (possibly infinite) blackboard where the instructor writes down by hand the content of the lecture. \systemname s aggregate the full lecture content in a structured format where visual information is segmented and grouped with the corresponding narration text. For example, Figure~\ref{Fig:videonote_example} shows our automatically generated output for math lectures that interleaves verbal explanations with the corresponding equations written on the board. 
 %
 By default, \systemname s hide redundant information to show a compact representation of the content that viewers can expand interactively to show relevant details (Figure~\ref{Fig:videonote_expanded}). 
 %
@@ -64,20 +64,11 @@ To segment the visuals into meaningful figures, we propose a dynamic programming
 
 We evaluate our approach with a user study that compares \systemname\ with a baseline transcript-based video player, and an existing, state-of-the-art visual-based video player developed by Monserrat et al \cite{monserrat2013notevideo}. We measure performance on summarization and search tasks, and observe how the participants interact with the interfaces. We find that \systemname\ is an effective interface for studying lecture videos. Specifically, users performed best using \systemname\ for search tasks involving text. Users noted that \systemname\ helped them to get a quick overview of the video including the details conveyed only through the text, and to efficiently focus on parts of interest. They also found the structured text easier to read and connect to relevant visuals than the baseline text-only transcript. In a post-study survey, users strongly preferred our interface for learning over the other two interfaces.\\
 %---------------------------------------------------------------------------------------
-\begin{figure}[ht!]
-        \centering
-        \begin{subfigure}[b]{\textwidth}
-        \includegraphics[width=\textwidth]{figures/khan3_page1.pdf}
-        \end{subfigure}
-        \caption{Example VideoNote}
-        \end{figure}
-\begin{figure}[!ht]\ContinuedFloat
-        \centering
-        \begin{subfigure}[b]{\textwidth}
-        \includegraphics[width=\textwidth]{figures/khan3_page2.pdf}
-        \end{subfigure}       
-        \caption{Example VideoNote (continued)}
-        \label{Fig:videonote_example} 
+\begin{figure}[t!]
+    \centering
+        \includegraphics[width=\textwidth]{figures/videonote_example.pdf}
+    \caption{Examples of two VisualTranscript outputs from Khan Academy Videos, \textit{'Indefinite integrals of x raised to a power'} (top) and \textit{'Fundamental theorem of calculus} (bottom).}
+    \label{Fig:videonote_example}
 \end{figure}
 %
 
@@ -107,6 +98,13 @@ They use  only the transcript to segment and summarize the video, whereas we lev
 The design of \systemname\ is informed by the following key characteristics of blackboard-style lectures:
 %
 \paragraph{Lectures present information progressively.}
+\begin{figure}[t!]
+    \centering
+        \includegraphics[width=\textwidth]{figures/keyideas.pdf}
+    \caption{(top) Lectures convey concepts progressively. Here, the labels (1 through 6) show the order in which concepts were presented. They also organize visuals into discrete entities (outlined in this visualization with bounding boxes). (bottom) Verbal explanations during lectures can either be explanatory or dedicative.}
+    \label{Fig:key_ideas}
+\end{figure}
+%
 Most lectures convey concepts in a progressive manner where each new piece of information builds on the previously presented content.
 For example, Figure~\ref{Fig:key_ideas} (\textit{top}) shows a panoramic image of the board for an entire lecture, where the labels show the order in which things were presented. Understanding the lecture often requires knowing this order.
 %
@@ -132,8 +130,23 @@ Our design gives the viewer relevant context for understanding the visual inform
 \section{The \systemname\ Interface}
 Based on these observations, we designed \textbf{\systemname}, a readable and printable interface that presents both the visual and audio content of a lecture video. Since \systemname\ contains all of the visual and audio information from the original video, it can be used by itself to study the content. Alternatively, it can be linked to the original lecture video to function as an interactive navigation aid. Similar to Monserrat et al's interface \cite{monserrat2013notevideo}, clicking on a visual entity or a transcript sentence plays the original video at that point in time. As the video is played, the corresponding visual entity and/or transcript sentence is highlighted. \\
 
-Figure ~\ref{fig:examples} shows examples of \systemname\ created from \todo{lecture video}. Please visit \todo{url} for the interactive version of the example. Given an input video and its transcript, we generate \systemname\ automatically using the algorithms described in the next section. To test the robustness of our method, we generated \systemname s of 20 lecture videos from 11 different instructors. Please view the appendix for all the results. Here we highlight some of the key features of \systemname .\\
+Figure ~\ref{Fig:videonote_example} shows two examples of \systemname\ created from Khan Academy videos. Please visit \url{https://people.csail.mit.edu/hishin/projects/visual_transcripts/abstract.html} for the interactive version of the example. Given an input video and its transcript, we generate \systemname\ automatically using the algorithms described in the next section. To test the robustness of our method, we generated \systemname s of 20 lecture videos from 11 different instructors. Please view the appendix for all the results. Here we highlight some of the key features of \systemname .\\
 %
+\begin{figure}[t!]
+    \centering
+    \begin{subfigure}[t]{2.4in}
+        \centering
+        \includegraphics[width=\textwidth]{figures/progression_ex.pdf}
+    \end{subfigure}%
+~
+       \begin{subfigure}[t]{1.8in}
+        \centering
+        \includegraphics[width=\textwidth]{figures/intersperse_highlight.pdf}
+    \end{subfigure}
+    \caption{(Left, bottom) \systemname\ shows the step-by-step progression of an equation  which is not apparent in the (left, top) final visual of the board. (Right) Interspersing text with visuals clarifies the connection between the illustration of a vector field and its equation. Compare with the leftmost example in Figure~\ref{Fig:visual_line_output}.}
+    \label{Fig:feature_highlight}
+\end{figure} 
+
 \paragraph{Linear format highlights lecture progression.} The layout of text and visual entities in \systemname\ often emphasizes the instructor's thought process and clarifies the intermediate steps that lead to a result. Figure~\ref{Fig:feature_highlight}~(left) compares equations in the final view of the blackboard at the end of the lecture to our \systemname . Although the blackboard view shows the same set of equations, it is difficult to infer how the equations relate to and build upon each other. Our \systemname\ shows a step-by-step progression of the visual content. 
 %
 \paragraph{Interspersing text with visuals clarifies connections.} A purely visual summary of the video omits verbal explanations, whereas a purely textual summary (i.e., standard transcript) can be confusing without the corresponding visuals. Instead, \systemname\ interleaves explanatory text and visual entities. This makes it easy to see the connection between illustrations, or the context of an illustration. For instance, compare the leftmost example in Figure~\ref{Fig:visual_line_output}, which shows a final view of the blackboard and Figure \ref{Fig:feature_highlight}~(right) the \systemname\ for the same video. In the former, it is difficult to see the connection between the illustration (pink highlight) and the equation to its right (green highlight) without listening to the lecture. In the latter, the text in-between explains clearly that the equation represents the vector field depicted in the illustration.
@@ -159,6 +172,12 @@ between visual entities and transcript sentences
 (\ref{sec:text_corr}). Finally, we generate a \systemname\ by interleaving visual entities with transcript text (\ref{sec:layout}). The rest of this section describes each of these steps in detail.
 %
 \subsection{Pre-processing}
+\begin{figure}[t!]
+    \centering
+        \includegraphics[width=\textwidth]{figures/strokes.pdf}
+    \caption{Examples of strokes (marked by black bounding boxes) extracted from video frames.} 
+    \label{Fig:stroke_examples}
+\end{figure}
 The visual content in blackboard-style lectures consists of \emph{strokes},
 the set of foreground pixels generated during one continuous drawing action.
 In the context of a graphics tablet, a stroke corresponds to the continuous
@@ -183,19 +202,18 @@ not available.
 %
 \subsection{Segmenting Visual Content}
 \label{sec:segmentation}
-One straightforward strategy for grouping strokes into visual entities
-is to process strokes in the order they are drawn and decide whether
-each stroke represents the start of a new visual entity or is part of
-an existing visual entity formed by previous strokes \cite{mynatt1999flatland}.
-While this simple, greedy approach works in some cases, there are many
-scenarios where it leads to poor segmentations. 
 \marginpar{
 \includegraphics[width=1.2in]{figures/greedy_ex-2.pdf}
 \captionsetup{font=footnotesize}
  \captionof{figure}{Without considering the semantics of these symbols and before the last stroke ($\frac{\delta p}{\delta y}dy$) is inserted, the first two strokes ($-\int^a_b$ and $dx$) appear like two separate equations with a large space between them.}
 \label{fig:baselineinset}
 }
-For example, in
+One straightforward strategy for grouping strokes into visual entities
+is to process strokes in the order they are drawn and decide whether
+each stroke represents the start of a new visual entity or is part of
+an existing visual entity formed by previous strokes \cite{mynatt1999flatland}.
+While this simple, greedy approach works in some cases, there are many
+scenarios where it leads to poor segmentations. For example, in
 Figure~\ref{fig:baselineinset}, there is a large space between the first stroke ($-\int^a_b$, \raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {1}}}) and the second stroke ($dx$, \raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {2}}}). Without considering the semantics of these symbols, 
 they appear to be separate equations. However, once we consider 
 the subsequent set of red strokes(\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {3}}})
@@ -214,7 +232,15 @@ strokes in one visual entity can be interspersed by strokes in a
 different visual entity. For example, the instructor may
 go back and forth between two lines of equations, or
 between a graph and an equation (Figure~\ref{Fig:line_order}).\\
-
+%
+\begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{figures/line_order.pdf}
+        \caption{The instructor goes back and forth between writing two lines,
+$e_1$ and $e_2$. The order of strokes 1-9 is as indicated.}
+        \label{Fig:line_order}
+\end{figure}\\
+%
 Given these observations, we propose a dynamic programming approach for
 stroke segmentation based on the classic optimal line-breaking
 algorithm~\cite{knuth1981breaking} that handles non-contiguous grouping.
@@ -425,9 +451,7 @@ In this case, we use the following scoring function $F_\text{sub}$ to evaluate a
 %
 where $n_\text{words}(e_\text{sub})$ is the number of words in the depictive text associated with sub-entity, $e_\text{sub}$; $P_\text{o}$ is the overlap between bounding boxes of sub-entities in $V_\text{sub}$ (defined in Equation \ref{Eq:overlap_penalty}); $w$ is the target number of words in the depictive text for each sub-entity; and $\lambda_{1}$ determines the relative importance of the word count and overlap terms. We set $w = 50$ (about 2-4 sentences) and $\lambda_{1} = 1/25$.\\
 
-Using this scoring function, we apply the same dynamic programming procedure described in section~\ref{sec:segmentation} to segment $e$ into sub-entities. In this variant, we only allow consecutive strokes to be grouped together since our goal is to obtain temporally sequential sub-entities.
-%
-\todo{Figure} shows an example output from this optimization.  
+Using this scoring function, we apply the same dynamic programming procedure described in section~\ref{sec:segmentation} to segment $e$ into sub-entities. In this variant, we only allow consecutive strokes to be grouped together since our goal is to obtain temporally sequential sub-entities. Figure~\ref{Fig:videonote_expanded} shows an example output from this optimization.  
 %-----------------------------------
 \subsection{Layout and Formatting}
 \label{sec:layout}
@@ -440,11 +464,19 @@ We organize the visual and audio content into a static, sequential format by int
         \label{Fig:layout_line_order}
 \end{figure}\\
 
-By default, all visual entities and explanatory sentences are shown; the depictive text associated with visual entities is hidden to reduce clutter. Users can click on the \emph{expand} buttons next to individual visual entities to display the corresponding depictive sentences. For complex visual entities, the expanded view shows the decomposed sub-entities with their associated depictive sentences (Figure~\ref{Fig:teaser}c).\\
+By default, all visual entities and explanatory sentences are shown; the depictive text associated with visual entities is hidden to reduce clutter. Users can click on the \emph{expand} buttons next to individual visual entities to display the corresponding depictive sentences. For complex visual entities, the expanded view shows the decomposed sub-entities with their associated depictive sentences (Figure~\ref{Fig:videonote_expanded}).\\
 
 %----------------------------------------------------------------------------------------
 \section{User Evaluation}
-We performed a comparative study to test the hypothesis that \systemname\ facilitates learning. We compared three interfaces to study video lectures: a standard YouTube player with an interactive text transcript (Baseline), Monserrat et al.'s interface \cite{monserrat2013notevideo} (hereafter referred to as \emph{Monserrat}), and our \systemname\ interface linked to the video (Figure~\ref{Fig:interfaces}). The YouTube video player is currently the most common viewing interface for online lectures, and \textit{Monserrat} while less established, was specifically designed to facilitate navigation of blackboard-style lecture videos. In \emph{Monserrat}, a panoramic image of the board with strokes from the entire lecture serves as an in-scene navigation interface. Users can click on any stroke to play the video at that point in time.
+%
+\begin{figure*}[h]
+    \centering
+          \includegraphics[width=\textwidth]{figures/evaluation-interfaces.pdf}
+         \caption{(left) We compared three interfaces to study video lectures: A standard YouTube player with an interactive text transcript, our Visual Transcript, and NoteVideo. (right) Graph shows median search task completion time, where error bar represents interquartile range.}
+    \label{Fig:interfaces}
+\end{figure*} 
+%
+We performed a comparative study to test the hypothesis that \systemname\ facilitates learning. We compared three interfaces to study video lectures: a standard YouTube player with an interactive text transcript (Baseline), Monserrat et al.'s interface \cite{monserrat2013notevideo} (hereafter referred to as \emph{NoteVideo}), and our \systemname\ interface linked to the video (Figure~\ref{Fig:interfaces}). The YouTube video player is currently the most common viewing interface for online lectures, and NoteVideo while less established, was specifically designed to facilitate navigation of blackboard-style lecture videos. In NoteVideo, a panoramic image of the board with strokes from the entire lecture serves as an in-scene navigation interface. Users can click on any stroke to play the video at that point in time.
 %
 \subsection {User Tasks}
 Our study includes two tasks: (1) summarization, to get a quick and comprehensive overview of the lecture without watching the entire video, and (2) search, to quickly locate specific information.
@@ -482,7 +514,7 @@ points covered by user summaries with each interface.
  \centering
  \begin{tabular}{ l |c c c}
  \hline
-    & \textbf{Baseline} & \textbf{\textit{Monserrat}} & \textbf{Ours} \\\hline
+    & \textbf{Baseline} & \textbf{NoteVideo} & \textbf{Ours} \\\hline
    \textbf{Main points} & 0.83$\pm0.12$ & 0.81$\pm0.21$ & 0.87$\pm0.18$\\
    \textbf{Detail points} & 0.50$\pm0.22$ & 0.56$\pm0.18$ & 0.58$\pm0.15$\\
    \hline
@@ -494,24 +526,24 @@ golden standard list.}
 
 Note that while on average, there may not seem to be a significant difference
 between ours and the two alternatives, summary quality varied
-significantly depending on the video. In particular, when the sequence of lecture was not clear in the panoramic image, \textit{Monserrat} users mixed the order of points or missed a main point entirely. For example, in the lecture on \textit{Fundamental Theorem of Calculus} (Figure~\ref{Fig:key_ideas}), \textit{Monserrat} users immediately clicked on the ``Fundamental Theorem'' (\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {4}}}) skipping the first third of the lecture about the graph of a continuous function and the area under it (\raisebox{.5pt}{\textcircled{\raisebox{-.9pt}
+significantly depending on the video. In particular, when the sequence of lecture was not clear in the panoramic image, NoteVideo users mixed the order of points or missed a main point entirely. For example, in the lecture on \textit{Fundamental Theorem of Calculus} (Figure~\ref{Fig:key_ideas}), NoteVideo users immediately clicked on the ``Fundamental Theorem'' (\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {4}}}) skipping the first third of the lecture about the graph of a continuous function and the area under it (\raisebox{.5pt}{\textcircled{\raisebox{-.9pt}
 {1}}}-\raisebox{.5pt}{\textcircled{\raisebox{-.9pt}
-{3}}}). While users performed comparably with Ours or the baseline, when asked which interface they preferred for the summary task, they preferred \textit{Monserrat} (5/9) and ours (4/9). 
+{3}}}). While users performed comparably with Ours or the baseline, when asked which interface they preferred for the summary task, they preferred NoteVideo (5/9) and ours (4/9). 
 
-\paragraph{(2) Users find information involving text faster with \systemname\ than with \emph{Monserrat} or the baseline.}
-For the \textit{text search} and  the \textit{contextual search} users performed fastest with \systemname\  followed by \textit{Monserrat} and then the baseline (Figure~\ref{Fig:interfaces}, \textit{right}), although the differences across the interfaces were not statistically significant according to the non-parametric Kruskal-Wallis Test ($\chi^2=0.82$,
+\paragraph{(2) Users find information involving text faster with \systemname\ than with NoteVideo or the baseline.}
+For the \textit{text search} and  the \textit{contextual search} users performed fastest with \systemname\  followed by NoteVideo and then the baseline (Figure~\ref{Fig:interfaces}, \textit{right}), although the differences across the interfaces were not statistically significant according to the non-parametric Kruskal-Wallis Test ($\chi^2=0.82$,
 $p=0.676$).\\ 
-For these tasks, users either had to find relevant text or find a visual and also look at the text around it (or listen to the audio). \systemname\ naturally supports such tasks by  interleaving text and figures. \textit{Monserrat} does not provide a text to skim through, but users could search for key words or phrases (a feature also provided in \systemname\ and the baseline). Alternatively, they could click on a visual and listen. Interestingly, the baseline performed worst on these tasks, despite the fact that it is most text-centered and  provides the exact same text as \systemname . This is likely because the text in the baseline was unstructured and difficult to read (see finding 3).\\
-For the \textit{visual search} users performed fastest with \textit{Monserrat}. For
-all videos we tested, \textit{Monserrat} had the advantage of presenting all the visuals
+For these tasks, users either had to find relevant text or find a visual and also look at the text around it (or listen to the audio). \systemname\ naturally supports such tasks by  interleaving text and figures. NoteVideo does not provide a text to skim through, but users could search for key words or phrases (a feature also provided in \systemname\ and the baseline). Alternatively, they could click on a visual and listen. Interestingly, the baseline performed worst on these tasks, despite the fact that it is most text-centered and  provides the exact same text as \systemname . This is likely because the text in the baseline was unstructured and difficult to read (see finding 3).\\
+For the \textit{visual search} users performed fastest with NoteVideo. For
+all videos we tested, NoteVideo had the advantage of presenting all the visuals
 in one screen, which made it easier for users to scan the entire visual content
 without having to scroll.\\
 On average, participants' performance on the search task was comparable on
-ours and \textit{Monserrat}, which was better than the baseline. The difference between
+ours and NoteVideo, which was better than the baseline. The difference between
 ours and the baseline was statistically significant with the Mann-Whitney
 U (MWU) test ($Z=-2.1$, $p=0.02$), whereas the difference between ours and
-\textit{Monserrat} was not ($Z=1.2$, $p=0.12$). Occasionally, users missed the information in their first search attempt and  then tried to scan the entire lecture, contributing to a large variance.  \\
-In terms of accuracy, users were most successful in locating the correct information with \systemname\ (average error rate $e=0.06$) compared to \textit{Monserrat} ($e=0.07$) or the baseline ($0.15$), although the differences were not statistically significant (ANOVA, $F_{2,24}=1.04$, $p=0.15$).
+NoteVideo was not ($Z=1.2$, $p=0.12$). Occasionally, users missed the information in their first search attempt and  then tried to scan the entire lecture, contributing to a large variance.  \\
+In terms of accuracy, users were most successful in locating the correct information with \systemname\ (average error rate $e=0.06$) compared to NoteVideo ($e=0.07$) or the baseline ($0.15$), although the differences were not statistically significant (ANOVA, $F_{2,24}=1.04$, $p=0.15$).
 
 \paragraph{(3) \systemname\ makes the transcript text easy to read and skim through.}
 Both the baseline and \systemname\ include the entire transcript text. However,
@@ -527,8 +559,8 @@ to read''}. Another user said that \textit{``the paragraph structure corresponds
 to the main points''} which facilitates skimming.
 
 \paragraph{(4) Users prefer \systemname\ for learning.}
-The post-task survey showed that, for learning in general, most users (7/9) preferred our interface over \textit{Monserrat} (2/9) or the baseline. 
-The reasons for preferring \systemname\ included \textit{``having the whole script and equations [visuals]''} and \textit{``a good balance between getting the overview and some more detail.''} Those who preferred \textit{Monserrat} appreciated having all visual content presented \textit{at once} without having to scroll, but also noted that the sequence was not apparent (e.g., many users asked where to click to get to the beginning of the lecture) and that \textit{``there's a risk of missing something that's not written on the board.''}\\
+The post-task survey showed that, for learning in general, most users (7/9) preferred our interface over NoteVideo (2/9) or the baseline. 
+The reasons for preferring \systemname\ included \textit{``having the whole script and equations [visuals]''} and \textit{``a good balance between getting the overview and some more detail.''} Those who preferred NoteVideo appreciated having all visual content presented \textit{at once} without having to scroll, but also noted that the sequence was not apparent (e.g., many users asked where to click to get to the beginning of the lecture) and that \textit{``there's a risk of missing something that's not written on the board.''}\\
 %----------------------------------------------------------------------------------------
 \section{Discussion}
 \label{sec:discussion}
@@ -540,7 +572,23 @@ such as partial erasure or copy-and-paste.  For instance, if the instructor
 updates a part of visual content in order to correct a mistake, the current
 implementation only shows the \textit{newest} stroke.\\
 
+\begin{figure}[h!]
+        \centering
+        \includegraphics[width=\textwidth]{figures/humanities_lec.pdf}
+        \caption{Our segmentation algorithm assumes that distinct visual entities are more or less separate from each other. For example, a history lecture
+where most of the writing is on top of a map, or where figures are overlayed
+on top of each other may require a different method. }
+        \label{fig:humanities_lec}
+\end{figure}
+
 Although in all of our examples the segmentation algorithm outputs produce a comprehensible \systemname\, we also observed 2 types of failure cases: (1) \textit{under-segmentation}, where too many strokes are grouped into a single visual entity, and (2) \textit{over-segmentation}, where related strokes are separated into different visual entities. Our scoring function assumes a layout where distinct visual entities are more or less spatially separate from each other. A different method may be required to handle videos that violate this assumption, for example a history lecture where most of the writing is on top of a map, or where figures are overlayed on top of each other (Figure~\ref{fig:humanities_lec}).  An editing or annotation mechanism, including crowdsourcing, to aid segmentation would be useful and a potential area for future work.\\
+
+\begin{figure}[h!]
+        \centering
+        \includegraphics[width=2.2in]{figures/gesture.pdf}
+        \caption{Layout using only temporal correspondence fails to resolve some references. In this example, `here' in the first sentence refers to the top right portion of the boundary R, whereas the second `here' refers to the bottom left portion. In the video, these references are clarified by pointing with a cursor.}
+        \label{fig:gesture}
+\end{figure}
 
 In placing temporally aligned visuals and sentences next to each other, we assume that instructors talk about what they are drawing at the same time. This assumption holds in most cases, but fails to resolve other types of references. For example, in Figure\ref{fig:gesture}, the pronoun `here' is used twice, each time referring to a different part of the visual. Whereas in the video these references become clear with the cursor movement, they remain ambiguous in our static output.
 
