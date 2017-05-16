@@ -4,7 +4,14 @@
 
 \chapter{Navigating Lecture Videos} % Chapter title
 \label{ch:visualtranscript} % For referencing the chapter elsewhere, use
-
+%
+\begin{flushright}{\slshape    
+The day is coming when the work done\\
+by correspondence will be greater in amount\\
+than tha done in the classroom of our\\
+academies and colleges.} \\ \medskip
+--- \defcitealias{harper:1885}{William Rainey Harper}\citetalias{harper:1885} \citep{harper:1885}
+\end{flushright}
 %----------------------------------------------------------------------------------------
 How viewers watch videos depends on the content of the video and the viewers'
 needs. For example, watching a film in a theater is a very different experience
@@ -181,8 +188,9 @@ between visual entities and transcript sentences
 The visual content in blackboard-style lectures consists of \emph{strokes},
 the set of foreground pixels generated during one continuous drawing action.
 In the context of a graphics tablet, a stroke corresponds to the continuous
-path of a pen while maintaining contact with the writing surface. \todo{Explain that this is not exactly the case in our pre-processing step.} As a pre-processing step, we extract
-individual strokes from the input video using a method similar to
+path of a pen while maintaining contact with the writing surface. 
+Since, our input is a recorded video and we do not have the vector information of the strokes, instead we extract
+individual strokes from the video frames using a method similar to
 \cite{monserrat2013notevideo}.  We detect the start and end time of
 each drawing action by comparing the number of foreground pixels in
 consecutive frames. A large increase marks the start of an action,
