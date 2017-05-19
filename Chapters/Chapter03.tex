@@ -60,6 +60,13 @@ Based on these observations, we designed \voicescript\, a speech authoring inter
 The rest of this section describes our interface through typical usage scenarios of how users might create an audio recording. 
 %
 \subsection{Typical Usage Scenarios}
+%
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{figures/ui_aligned2}
+  \caption{The \voicescript\ interface. The \textit{master-script} view on the left shows the current state of the project, including both recorded and unrecorded text. On the right, there are individual tabs for each recording, along with an \textit{All} tab that shows a summary of all takes.}~\label{fig:ui_aligned}
+\end{figure}
+%
 The rest of this section describes our interface through typical usage scenarios of how users might create an audio recording. 
 
 \subsubsection{One-pass authoring.} 
@@ -97,13 +104,240 @@ In both iterative and collaborative editing, users need to identify (1) new cont
 \subsubsection{Other workflows.} 
 One key benefit of our interface is that it supports a wide range of workflows for different users and scenarios. For instance, instead of starting with a written outline, the user can begin with an empty master-script, start recording, and then use  the initial recording as an outline. The user can also record the entire script in a single take, or work on a single section at a time. \\
 
-Please visit \todo{url} to see a video describing the interface. The voiceover for this video was created by two authors collaborating over \voicescript . 
+Please visit \url{https://people.csail.mit.edu/hishin/projects/voice_script/abstract.html} to see a video describing the interface. The voiceover for this video was created by two authors collaborating over \voicescript . We also look at various workflows in our informal user evaluation in Section~\ref{sec:usereval}. 
 
 %----------------------------------------------------------------------------------------
 \section{Algorithms}
+\label{sec:algorithms}
+Our authoring interface relies on audio transcription and text alignment algorithms to link the master-script to the audio recordings.  
+
+\subsection{Transcribing the audio recording}
+We use IBM Speech to Text Service \cite{ibmspeechtotext} to obtain a verbatim transcript of each audio recording in real-time. The service outputs a time stamp for each word indicating its start and end time within the audio. It also segments the transcript into \textit{utterances} where each utterance is separated by a longer silent gap in the speech (longer than 500 ms). While automatic speech recognition is imperfect, we have found that in most cases the results were accurate enough for the purpose of alignment (described below) and for users to understand the transcript. 
+  
+\subsection{Aligning the transcript to the master-script}
+To support our side-by-side \textit{compare-view} as well as the \textit{All} tab view, we must identify corresponding parts of the master-script and recording transcripts. Moreover, we must partition these corresponding parts into segments that users can easily compare and merge into the master-script. Ideally, our segments should respect natural boundaries such as punctuations and line breaks in written text to aid readability. As discussed earlier, the segment boundaries should also align with longer pauses in the audio so that merge operations do not introduce obvious audio artifacts. Finally, we also want to separate parts of the transcript that generally agree with the master-script (i.e., planned speech) from parts that do not (i.e., improvised speech).  We designed a scoring function that optimizes for these requirements and use an iterative algorithm to co-segment the two texts. We first explain the algorithm and then describe the scoring function in detail.
+
+\subsubsection{Iterative co-segmentation.}
+Before running our co-segmentation algorithm, we first compute the global word-to-word alignment between each recording transcript and the master-script using the Needleman-Wunsch (NW) algorithm \cite{needleman1970general}. NW allows for insertions and deletions, which account for differences in the two texts, for example, due to rough scripts, inaccurate speech, or transcription errors.
+%
+The segmentation of the master-script depends on the segmentation of the transcript and vice versa. Our iterative algorithm alternates between optimally segmenting the master-script and the transcript independently using the result from one to segment the other. We initialize the segment boundaries at punctuation marks (.!?:;) in the unrecorded text and silent gaps ($>$\ 500ms)\ in the recorded text. In practice, we
+found that two iterations were sufficient to converge to a solution.
+
+For each optimization step, we use the classic optimal line-breaking algorithm by Knuth and Plass \cite{knuth1981breaking}: The algorithm takes an input text $T$ and a reference text $R$, and outputs an optimal segmentation for $T$. Given the input text as a sequence of $n$ words $T = \{w_0,\dots,w_n\}$, the algorithm finds the optimal set of inter-word
+boundaries that break the text into segments. We refer to the boundary between $w_i$ and $w_{i+1}$ as $b_i$.
+%
+The algorithm iterates through each word, and for each $w_i$
+computes and records the optimal set of text segments $S_i$ for words up to $b_i$, along with the total score $E(S_i)$ of
+this partial solution. $S_i =\{s_0, ... s_i\}$ is a sequence of segment labels, where $s_i$ is the index of the segment that word $w_i$ belongs to. To determine the optimal partial solution for $w_i$, it
+considers each previous boundary $b_j$ $(j<i)$, and evaluates two possible ways of
+segmenting the text $T_{ji} = \{w_\text{j+1},
+\dots,w_\text{i}\}$: (1) appending $T_{ji}$ to the last segment in $S_j$, or (2) forming a new text segment with $T_{ji}$. The algorithm selects the better (lower) of the two scores for $T_{ji}$ and adds it
+to $E(S_j)$ to obtain the total score for the proposed
+segmentation. After considering all candidate boundaries $b_j$, the partial solution with the minimum segmentation score is stored as the optimal partial solution. Once the algorithm iterates through all the words, $S_n$ is the
+optimal set of segments for the entire text $T$. 
+
+\begin{figure}
+\centering
+  \includegraphics[width=\textwidth]{figures/scoringfunc.pdf}
+  \caption{Co-segmentation of master-script and transcript texts. (a) Segmentation using only punctuation marks results in abrupt cuts in the audio. (b) Segmentation using only utterance boundaries produces unnatural cuts in mid-sentence. Our scoring function takes into account both sentence punctuation marks and audio pauses.}~\label{fig:scoringfunc}
+\end{figure}
+
+\subsubsection{Scoring function.}
+The dynamic programming algorithm described above requires a
+scoring function ($E$) that evaluates the goodness of a candidate segmentation. $E$ is a sum of the scores ($e$) for individual segments in the candidate segmentation. We define the scoring function
+based on three terms: 
+\begin{enumerate}
+\item{\textit{Punctuation and silent gaps}: We prefer segment boundaries after sentence punctuation marks, and in case of recorded text, where there is a longer silent gap. Placing cuts at silent gaps allows audio segments from different takes or different parts of a single take to be joined seamlessly. More precisely, we define the boundary score ($e_b$) for a single text segment $T_{ji} = \{w_\text{j+1}
+\dots,w_\text{i}\}$ as:
+\begin{equation}
+    e_b(T_{ji})= 
+\begin{cases}
+   1.0, \text{ if } w_i \text{ is unrecorded w punctuation (.!?:;)}\\
+   -1.0 \text{ if } w_i \text{ is unrecorded w/o punctuation}\\
+   t_{gap}(w_{i}) \text{ if } w_i \text{ is recorded} 
+\end{cases}
+\end{equation}
+
+where $t_{gap}(w)$ is the silence gap in seconds after a recorded word, $w$, and is equal to 1.0 for $w$ that is at the end of a recording.
+It is important to consider both the sentence punctuation and the silent gaps. As the examples in Figure~\ref{fig:scoringfunc} illustrate, considering only punctuation can result in audio artifacts when merging recordings. Similarly, considering only utterance boundaries can produce unnatural cuts in the middle of a scripted sentence.
+}
+
+\item{\textit{Global alignment}: We try to separate transcript segments that have a counterpart in the master-script (planned) from those that do not (improvised). Likewise, for the master-script, we want to separate segments that have a match in the transcript (recorded) from those that do not (unrecorded). We utilize the global alignment output from the Needleman-Wunsch (NW) algorithm. For each word $w_i$ in the input text ($T$) NW outputs a mapping 
+to the reference text ($R$), and vice versa. For instance, $m_i$ is the index of the word in  $R$ that matches $w_i$. $m_i < 0$ if the word has no match. We prefer text segments that have the proportion of matching words close to 0 or 1. The alignment score ($e_a$) for a single text segment $T_{ji}$ is:  
+\begin{equation}
+e_{a}(T_{ji}) = 2\times\bigg|\sum_{n=j+1}^{i}{match(w_n)}\big/(i-j) - 1/2 \bigg|
+\end{equation}
+where $match(w_i)$ is 1 or 0, depending on whether $m_i \geq 0$ or not (whether the word has a match or not).
+}
+\item{\textit{Consistency with the other text}: Since the end goal is to align the segments from both texts, we would like the segment boundaries from the input text to align with the segment boundaries in the reference text even when the punctuation and utterance boundaries do not coincide. Let $S' = \{s'_0, \dots, s'_n\}$ be the segmentation of text $R$. Given this segmentation and the mapping of $T$ to $R$ from NW, the consistency score ($e_c$) for a text segment $T_{ji}$ is:
+\begin{equation}
+    e_c(T_{ji})= 
+\begin{cases}
+   1.0, \text{ if } s'_{m_i} \neq s'_{m_k} \text{ for the smallest } k>i, m_k \geq0\\
+   -1.0 \text{ otherwise }
+\end{cases}
+\end{equation}
+
+$s'_{m_i}$ is the index of the segment which $w'_{m_i}$ belongs to and likewise for $s'_{m_k}$. $w'_{m_k}$ is the closest word after $w'_{m_i}$ that has a match in $T$.
+} 
+\end{enumerate}
+
+We combine these terms into a single scoring function $e$ as follows. 
+\begin{equation}
+e(T_{ji}) = e_a(T_{ji}) + e_b(T_{ji}) + 0.5  e_c(T_{ji})
+\end{equation}
+The goodness score for a set of text segments $S$ is:
+\begin{equation}
+E(S) = \sum_{T_{ji}\in S}{e(T_{ji})} - \big|S\big|
+\end{equation}
+where $\big|S\big|$ is the number of segments in $S$ and is a normalization term. For notational convenience, we use $T_{ji}\in S$ to refer to the set of contiguous words in $T$ that are assigned to the same segment in $S$. \\ 
+
+We iteratively segment the master-script and the transcript texts. In practice, we found that 2 iterations was sufficient to converge to a final co-segmentation of the two texts.
+
+\subsubsection{Alignment.} 
+Given a co-segmentation of the master-script and the transcript text, we then compute the best matching master-script segment for each transcript segment. The match score between two text segments $T_1$ and $T_2$ is defined as the proportion of words in those segments that have a match between each other (from the NW output).
+The result is an alignment between the master-script and transcript segments. 
+
+We use this alignment to facilitate syncing and merging of script/audio by presenting tools similar to  common text differencing and merging tools. The \textit{compare-view} displays matching segments side-by-side. Our color-coded visualization indicates which portions of the master-script is missing from the transcript, and which parts of the transcript are improvised (parts that do not have matching segments). In the \textit{all} tab, segments from separate transcripts that match similar portions of the master-script are grouped together so that users can quickly compare and select between one of them. Similar to text or code merging, users can select a transcript segment to overwrite the matching master-script segment.
+
+
 
 %----------------------------------------------------------------------------------------
 \section{User Evaluation}
+\label{sec:usereval}
+\subsection{Informal User Study}
+To assess the overall usability of \voicescript\ and to observe how users leverage various features of the interface, we conducted an informal evaluation with 4 users (U1-4). We started each session with a 10-minute demonstration of our interface. Then, we gave users a short article about a technical subject: \textit{What
+is a Decibel?} from \textit{howstuffworks.com} \cite{howstuffworks} or \textit{How Lasers Work} from
+David Macaulay's illustrated book, \textit{The Way Things Work}
+\cite{macaulay1999way}. The users' task was to create an explanatory audio recording about the subject using our interface. Users were allowed to refer to the article during the authoring process or to take notes on the master-script, but they were discouraged from recording the article by reading it out loud. We examined the users' workflow and solicited written qualitative feedback about the authoring experience at the end of the session. Each session lasted about 40 minutes.
 
+\subsubsection{Findings}
+While the size of our user evaluation is small, the initial findings are extremely encouraging. All users successfully produced a complete audio recording summarizing the article. %(Table 1). 
+
+\begin{mldescription}
+\mlitem{\voicescript\ supports various workflows.} Interestingly, each user adapted a very different workflow. For example, U1 started by writing a complete list of main points. For each take, U1 recorded a few points from the list, merged them into the master-script, and then continued to record the next points on a separate take. In contrast, U2 wrote part of the script, recorded that portion, and moved on to write the script of the next part. U3 did not write an initial script, but improvised the recording and used that as a starting point to edit and re-record afterwards. Similar to U1, U4 started by writing a rough outline. But, instead of recording a few points, U4 recorded the full script at each take and merged the best parts to get the final track. Sometimes users typed verbatim script to read aloud during the recording, and other times they wrote rough outlines. For example, U2 noted,  \textit{``For
+the introduction, I had a pretty good idea of what I wanted to
+say, so it saved me time to use only bullet points. [For the
+second part] I wrote full sentences, as I was not familiar with
+all the technical details and it would have been more difficult
+to improvise. I enjoyed being able to use the master-script in
+both ways.''} The differences in the workflows could be due to personal preference, and/or  to the article content. In any case, our interface was able support various workflows. 
+
+\mlitem{The master-script facilitates iterative workflows.} As the above examples also demonstrate, users took advantage of the master-script to go back and forth between scripting and audio recording. For instance, U2 initially wrote a very rough outline for the script.
+After recording and merging the first take based on this rough script, U2 refined the master-script, and then recorded more takes. Similarly, after recording and merging audio takes into the final track, U1 noticed a mistake in the speech
+(i.e., instead of saying \textit{140 decibels}, U1 had said \textit{40}
+decibels). U1 corrected the corresponding recorded text in the
+master-script, re-recorded
+the relevant portion part by reading out the edited master-script, and replaced it.
+During the back-and-forth iteration, users took advantage of our color-coded visualization that indicated sections of the mater-script that required recording  (grey) or re-recording (blue italics). 
+
+\mlitem{Users found the master-script to be helpful.}
+All users offered strong positive feedback about our authoring
+interface, and said they would use it to create speech recordings. They were most enthusiastic about the integration
+of the script and the recordings in the master-script document,
+and the ability to align the master-script to the transcripts.
+To quote from one user, \textit{``Writing the script on the same interface and having
+that integrated with the audio was most helpful.''}  Another user noted
+that the \textit{``compare-view helped to keep track of what pieces
+of information was already recorded and which ones were still
+needed.''} 
+
+\mlitem{Users were satisfied with the final voice-over quality.} 
+Participants were satisfied with the overall quality
+of the final recording. One user wrote, \textit{``I was surprised
+how the final recording from the multiple takes was seamless.''} Users noted that while speech recognition was imperfect, \textit{``the transcriptions were accurate enough to understand and easy to check [by clicking to listen to the corresponding audio].''}
+\end{mldescription}
+%------------------------
+\subsection{Comparative study}
+\begin{figure}[!t]
+\centering
+  \includegraphics[width=1.0\columnwidth]{figures/interfaceR.pdf}
+  \caption{Rubin et al.'s text-based audio editing tool (\textit{Interface-R}). For the purpose of our comparative study, each audio take was loaded as a separate speech track.}~\label{fig:interface-r}
+\end{figure}\voicescript
+
+One of the main tasks in creating audio recordings is cutting and merging multiple audio takes. Many existing software specifically assist this task (see Related Work). We separated out this audio editing task, and conducted a small comparative study to explore whether our master-script view facilitates the task compared to a state-of-the-art transcript-based speech editing interface \cite{rubin2013content}. 
+
+Similar to \textit{Voice Script}, Rubin et al.'s interface (shown in Figure~\ref{fig:interface-r}, and referred to as
+\textit{Interface-R} hereafter) also uses time-aligned transcripts to support text-based editing. In both systems, users
+can edit the transcript like a text document using operations
+such as copy-and-paste, insert, or delete, and the edits are propagated
+to the audio. Both systems also detect alternate takes of the
+same sentence and groups them together so that users can easily compare and select between them.
+However, unlike \textit{Voice Script} , Interface-R does not have a master-script that integrates multiple audio recordings with a script. In fact, Interface-R does not explicitly handle multiple recordings. To simulate
+multiple recorded takes, we took advantage of their multiple speech tracks,
+so that each take appeared in a separate speech track (i.e., separate columns).
+
+We recruited 4 participants, none of whom had
+prior experience using text-based audio editing systems. We gave them
+a script with bullet points outlining a mini lecture on a technical
+subject (\textit{Gravity} and \textit{Dark matter}) and
+two audio takes roughly corresponding to the script. In \textit{Voice Script}, the script was contained in the initial master-script. Since Interface-R does not have a notion of
+a script separate from the transcripts, we gave users a hard copy
+of script. The task
+was to cut and merge the two pre-recorded takes to produce a recording that
+contained all the contents listed in the script and only those
+contents. The two takes were similar, but each take had some
+missing content and some extra
+content. The participants had to choose parts from each take
+and combine them to get the final result. We encouraged the users
+to focus on having the complete content rather than on the details
+of the audio quality (e.g. tempo, diction, flow of speech).
+
+Each participant completed the task twice, once on each interface using different scripts.
+The subject of the lecture and the order of the interface were
+counter-balanced. We examined the time users spent to complete the task, the number/type of functions they used, and the quality of the
+final recording. After each task, participants gave written
+qualitative feedback about their experience. In total, each session lasted about 1 hour. 
+\subsubsection{Findings}    
+\begin{table}[!t]
+\center
+\tabcolsep3pt
+\begin{tabular}{c|cccccc}
+\multicolumn{7}{c}{\textbf{Audio Editing Session}}\\\hline
+{User}&\multicolumn{2}{c}{Time spent}& {Total} & {Accept}
+&{View}&{Text} \\
+{}&\multicolumn{2}{c}{ours \textit{(Rubin)}}&{cuts}&{\textit{ind
+/ all}}&{alternate}&{edit}
+\\\hline
+\textit{A}&\multicolumn{2}{c}{5:58 \textit{(08:10)}}&{3}& {4
+/ 3}&{-}&{2}\\
+\textit{B}  &\multicolumn{2}{c}{6:40 \textit{(11:10)}}&{3}&{3
+/ 4}&{-}&{1}\\
+\textit{C}&\multicolumn{2}{c}{9:37 \textit{(11:05)}}&{2}& {7
+/ -}&{1}&{7}\\
+\textit{D}&\multicolumn{2}{c}{7:25 \textit{(09:10)}}&{6}& {10
+/ 1}&{3}&{-}
+\\\hline
+\end{tabular} 
+\label{tab:editing}
+\caption{Four participants created audio
+recordings from two pre-recorded takes, using our interface and
+Rubin et al.'s interface. Usage statistics pertain to our interface.
+Accept \textit{ind / all} are number of segments accepted from
+the individual transcript view and the \textit{all} tab view
+respectively.}
+\end{table} 
+\begin{mldescription}
+\mlitem{Users completed the task faster using Voice Script.} All participants completed the task 25\% faster using our interface (average 7.4  \textit{vs} 9.9 min), and also preferred it to Interface-R. The difference may be explained by the different workflow that each interface affords. In Interface-R, users effectively started with both recordings in the final track. They applied copy-and-paste to cut and merge the two takes, and deletion to remove redundant or superfluous content. In contrast, in \textit{Voice Script}, users started with an empty final track. Then, using the \textit{compare-view} they \textit{accepted} parts that matched the script from either of the takes. Although copy-and-paste and deletion  were also available in \textit{Voice Script} these operations were used only rarely, for example to delete a mistakenly accepted segment, to delete individual words, or to change the ordering of accepted segments (Table 1) . 
+ %Each of the four participants preferred \voicescript\ over Interface-R %for the given task, and noted they would use
+% our interface to edit audio recordings. Every participant also
+% completed the task faster using our interface (7.4 $vs$ 9.9 min Interface-R). 
+% Table 2 summarizes the participants' usage of our interface. Again users had different preferences for the individual transcript view and the \textit{all-tab} view. User B wrote,  \textit{``individual tabs were helpful after using the all-tab to make sure I hadn't missed content''} whereas user D \textit{``liked the individual tabs better since I wanted to view the original take as is.''} For this task, participants did not have to insert new content, but they used text editing operations to move content (e.g. copy \& paste)\ or delete portions of accepted segments from the final track.   
+
+\mlitem{The master-script facilitates merging.} Users appreciated having the master-script view. First, the master-script served to integrate the script outline and the recordings into a single comprehensive document. To quote from one user, \textit{``The master view integrated the two takes into an almost seamless whole that I just had to edit, as opposed to presenting two separate draft from which I had to generate a third and final story.''}  Secondly, the master-script helped users keep track of the status of the final track compared to the planned script. One user noted that \textit{``The outline [in the master-script] made it easier to find what I had accepted to the final track and what was still missing, instead of making notes on the paper outline and going back-and-forth between it and the recordings.'' } 
+
+\mlitem{The \textit{compare-view} facilitates merging.}  All 4 participants mentioned the \textit{align} function in the \textit{compare-view} as the most helpful feature in \textit{Voice Script}. First, as one user noted, the segmentation in \textit{``the alignment view made editing much faster by visually breaking the script and the transcript into corresponding parts. I found I had to read much less.''} Also users found it \textit{``easier to click than to copy and paste''} in order to merge portions of recordings into the final track.  
+\end{mldescription}
 %----------------------------------------------------------------------------------------
 \section{Discussion}
+\subsection{Limitations}
+We rely on automatic speech recognition to transcribe the audio recordings in real time. Despite recent improvements in speech recognition \cite{hinton2012deep}, its performance varies widely. Transcription errors can affect the user's performance negatively (e.g., in navigating the audio, or if the user has to spend time correcting the errors) \cite{gaur2015effects}. In \textit{Voice Script}, users can click on a word to listen to its corresponding audio and manually correct the transcription without affecting the audio. Taking advantage of the written script to fix or reduce speech recognition errors is an interesting area for future work.
+
+\voicescript\ supports \emph{asynchronous} collaboration to create voice recordings. Additional features are required in order to support synchronous collaboration, in particular, conflict resolution and version control. 
+
+Our interface focuses on the content of the speech recordings but does not consider editing details for audio quality. As one user mentioned in the feedback, we could integrate editing tools such as the ones in Rubin et al. \cite{rubin2013content} or \cite{rubin2015capture} to fine-tune audio quality. Speech recordings often accompany visual footage or other sound effects such as music that is also closely related to the script/audio. Future work could investigate how to integrate these contents in the workflow.
+
+\subsection{Conclusion}
+To create speech recordings, people iterate back and forth between script writing or editing and audio recording or editing.  It is also common for several people to collaborate in the authoring workflow. Unfortunately, most existing tools treat the script and the audio as completely separate entities, which makes the dynamic workflow between them very tedious. We presented \voicescript, an authoring interface that facilitates iterative workflows for script writing and audio recording or editing. We used our system to collaborate asynchronously to create a voice-over. Through an informal user study, we demonstrated that our interface supports a wide range of workflows, and that our \textit{master-script} seamlessly integrates scripting and recording. A comparative study showed that our system facilitates novice users editing speech recordings. 
+
+
