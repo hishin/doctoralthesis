@@ -1,29 +1,58 @@
 % Chapter 4
 
-\chapter{Conclusion} % Chapter title
-
+\chapter{Conclusion} 
 \label{ch:conclusion} % For referencing the chapter elsewhere, use \autoref{ch:name} 
+%
+\begin{flushright}{\slshape    
+In my mind, very few people are truly literate with new media.\\
+Would we consider someone literate with traditional media\\
+if they could read but not write?} \\ \medskip
+--- \defcitealias{resnick:2008}{Mitchel Resnick}\citetalias{resnick:2008} \citep{resnick:2008}
+\end{flushright}
+%
+%----------------------------------------------------------------------------------------
+\section{Contributions}
+We began in the introduction with the goal of designing effective interfaces to make it easier for users to author, edit and navigate audiovisual media. We looked at three specific domains: navigating lecture videos, authoring speech recordings and delivering slide presentations. In each case, we proposed a design solution to facilitate the user task, implemented the solution in a prototype interface, and provided preliminary evaluation through focused user studies. In doing so, we fleshed out several principles for designing effective audiovisual media interfaces. These principles apply broadly to a wide range of applications and user tasks:
+
+\subsubsection{Finding and Imposing Spatial \& Temporal Structure in Media}
+An essential aspect of audiovisual media production is iterative editing. Efficient navigation and linking between related parts are key to facilitating this process.\\
+
+In a single author scenario, authors can rely on their unique knowledge of the media. For instance, the narrator may remember the timing of the specific point in the audio that needs to be re-recorded. Similarly, if the editor knows the contents of the recordings, it is easier to find an alignment between them. However, as the size of the media or the number of input stream grows, or as multiple people work together, users have to navigate and edit media which they are not familiar with. This becomes very time-consuming. Even simple operations such as alignment and synchronization can be tedious and detract the editors' attention from the content.\\
+
+As we have seen in our work, inferring inherent structures from the media, and imposing meaningful structures in their representation can alleviate this problem. For example, VisualTranscripts infers the semantic relationship between individual strokes and re-groups them into meaningful static figures. VoiceScript uses a text-based representation and explicitly visualizes the alignments between the script and the audio recording spatially, side-by-side. In both instances, structure is inferred from a temporal media and then transformed into a static, spatial representation. Static representations have the advantage that they are easy to visually navigate (including skimming and searching), spatially organize, and apply edits.\\
+Similar approaches can be extended to a wide range of applications. For example, static representations of animations, similar to VisualTranscripts or motion illustrations~\cite{chi2016authoring}, can be used to facilitate post-editing and then reverse-engineered to render the edited animations. Moreover, recent advances in audio and video analysis established new methods to extract and manipulate less obvious structures from audiovisual media. For example, \cite{mysore2010non} introduced a novel algorithm to separate sources from a combined audio signal. \cite{davis2014visual} analyzes small vibrations recorded in a video to infer sound and material properties of objects. Interfaces must capitalize and appropriately expose such structures so that users can understand and manipulate the media with ease.
+
+\subsubsection{Utilizing Various Modalities for Input \& Output}
+Another key concern for audiovisual media interfaces is the need to support a fluid and spontaneous workflow. For instance, users often want to explore multiple alternatives, exchange feedback, make and undo changes on-the-fly, and visualize the consequences. These processes usually involve working with and combining multiple modalities, both as input and as output.\\ 
+
+As input, users often want low-effort, less formal methods of interaction. For example, animators can produce a quick draft of a story by sketching and producers can exchange feedback about a video using e-mails. Currently, most interfaces for audiovisual media do not support such informal interactions and their output (e.g., sketch, email) must be manually translated into the actual media (e.g., animation, video).\\ 
+
+Our work explored the idea of combining structured data with less structured interactions. VoiceScript integrates script text (structured data) with improvised speech (unstructured interaction). Aparecium proposes inking gestures (unstructured interaction) as a main modality to present pre-authored slides (structured data). Similar ideas can be applied to a range of applications, for example, integrating sketching into UX design, or using verbal annotations in audio authoring. Interfaces must seek to support natural modes of interaction in real-time and integrate the output of these interactions to the media in a meaningful way. \\
+
+The principle of employing multiple modalities applies not only to user input but also to how the media is represented. VisualTranscript represents lecture videos with images, text and videos. VoiceScript represents speech recordings as both audio and text. Different modalities not only facilitate different tasks but work together to give a richer view of the media.
+
+\subsubsection{Supporting Direct Manipulation with Automation}
+
 
 %----------------------------------------------------------------------------------------
 
-\section{Section Title}
+\section{Future Directions}
+\subsection{Facilitating Collaborative Authoring of Audiovisual Media}
+This dissertation looked mostly at single user scenarios. Chapter~\ref{ch:voicescript} briefly discussed asynchronous collaboration to author voice recordings, but still the main focus was on facilitating the workflow of a single user. To make interfaces truly effective and to
+empower users even further, supporting collaboration is essential.\\
 
-Content
+Online collaborative editing is a growing theme across a number of domains and we are seeing a rise of new web-based editors such as OnShape for 3D modeling~\cite{onshape2017} or Prezi for presentations~\cite{prezi2017}. Cloud-based platforms such as Adobe Creative Cloud~\cite{creativecloud2017} or Google Drive~\cite{googledrive2017} are also making it easier to collaborate and share assets among multiple users and devices.\\
 
-%------------------------------------------------
+However, major challenges remain to support web-based collaboration for audiovisual media. In particular, traditional data structures for audio or video were developed for single user, single machine interfaces. They are unwieldy even to simply load or share. We must rethink how we store and represent audiovisual data in order to effectively address issues that arise with collaboration, such as conflict resolution and tracking and visualization of edit history.\\
 
-\subsection{Subsection Title}
+The goal is to enable novices, experts and distributed online communities to collaborate directly in real-time to author compelling audio recordings, videos, animations etc., and make the experience as smooth and easy as using Google Docs. This effort will naturally lead to the invention of new types of media and social platforms such as we have seen with Wikipedia~\cite{wiki2017} for instance.
 
-Content
+\subsection{Interactive Media}
 
-%------------------------------------------------
+\subsection{Human-Interface-Media Interaction}
+The Merriam-Webster dictionary defines \textbf{interface} as \emph{the place at which independent and often unrelated systems meet and act on or communicate with each other.} As such, interfaces affect how users engage with the media and even what kind of media users produce.\\
 
-\subsection{Subsection Title}
+We saw some examples of this in our user studies. In the comparative study for navigating lecture videos (\ref{visualtranscript-usereval}), when the transcript text for the video was not structured users relied on the video instead even when they were looking for specifically textual information. On the other hand, with VisualTranscript, users preferred to \textit{read} the text and the figures instead of playing the video. In the case of presentation interfaces (chapter~\ref{ch:aparecium}), we did not allow instantaneous animation effects in Aparecium because we found that it led users to make fast-paced presentations.\\
 
-Content
 
-%----------------------------------------------------------------------------------------
-
-\section{Section Title}
-
-Content
+Study this so as to make media that makes people learn, that help people communicate better. not only work efficiently but even produce better results.
